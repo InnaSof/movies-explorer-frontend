@@ -1,0 +1,32 @@
+.nav-tab {
+  width: 100%;
+  background-color: #272727;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding: 25px 0;
+}
+
+.nav-tab__link {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 16px;
+  color: #FFF;
+  transition: opacity 0.2s;
+  text-underline-offset: 3px;
+}
+
+.nav-tab__link:hover{
+  opacity: 0.6;
+}
+
+@media (max-width: 320px) {
+  .nav-tab {
+    gap: 24px;
+  }
+
+  .nav-tab__link {
+    font-size: 11px;
+  }
+}
