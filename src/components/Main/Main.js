@@ -8,13 +8,13 @@ import AboutMe from "../Main/AboutMe/AboutMe";
 
 function Main() {
   return (
-    <div className="main">
+    <main className="main">
       <Promo />
       <NavTab />
       <AboutProject />
       <Techs />
       <AboutMe />
-    </div>
+    </main>
   );
 }
 

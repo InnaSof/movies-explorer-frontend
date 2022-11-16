@@ -1,11 +1,10 @@
 import React from "react";
-import { useState } from "react";
 import './SearchForm.css';
 import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
 
 function SearchForm() {
-  const [inputSearch, setInputSearch] = useState('');
-  const [checkboxStatus, setCheckboxStatus] = useState(false);
+  const [inputSearch, setInputSearch] = React.useState('');
+  const [checkboxStatus, setCheckboxStatus] = React.useState(false);
 
   function handleInputChange(evt) {
     setInputSearch(evt.target.value);
@@ -28,7 +27,7 @@ function SearchForm() {
             type="text" 
             placeholder="Фильм" 
             name="search" 
-            required=""
+            required
             value={inputSearch || ''}
             onChange={handleInputChange}
           />
