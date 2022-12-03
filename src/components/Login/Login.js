@@ -1,28 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Login.css';
 import { Link } from "react-router-dom";
 import logo from '../../images/logo.svg';
+import useFormWithValidation from "../../utils/useFormWithValidation";
 
-function Login({ onLogin }) {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+function Login({ onLogin, loginError }) {
 
-  function handleEmailChange(evt) {
-    setEmail(evt.target.value);
-  }
+  const { values, handleChange, resetForm, errors, isValid } = useFormWithValidation();
 
-  function handlePasswordChange(evt) {
-    setPassword(evt.target.value);
-  }
-    
   function handleSubmit(evt) {
     evt.preventDefault();
-
-    onLogin({
-      email,
-      password
-    });
+    onLogin(values);
   }
+
+  useEffect(() => {
+    resetForm();
+  }, [resetForm]);
 
   return(
     <section className="login">
@@ -34,25 +27,40 @@ function Login({ onLogin }) {
         <form className="login__form" onSubmit={handleSubmit}>
           <p className="login__form-text">E-mail</p>
           <input
-            value={email}
-            className="login__input" 
-            type="email" 
-            placeholder="Email" 
-            onChange={handleEmailChange} 
-            required
-          />
-          <span className="login__error" />
-          <p className="login__form-text">Пароль</p>
-          <input 
-            value={password}
+            value={values.email || ''}
             className="login__input"
-            type="password" 
-            placeholder="Пароль" 
-            onChange={handlePasswordChange} 
+            type="email"
+            placeholder="Email"
+            onChange={handleChange}
+            name="email"
+            id="email-input"
             required
+            minLength={2}
+            maxLength={40}
           />
-          <span className="login__error" />
-          <button className="login__button" type="submit">Войти</button>
+          <span className="login__error">{errors.email}</span>
+          <p className="login__form-text">Пароль</p>
+          <input
+            value={values.password || ''}
+            className="login__input"
+            type="password"
+            placeholder="Пароль"
+            onChange={handleChange}
+            name="password"
+            id="password-input"
+            required
+            minLength={2}
+            maxLength={40}
+          />
+          <span className="login__error">{errors.password}</span>
+          <span className="login__error-btn">{loginError}</span>
+          <button 
+            className={`login__button ${!isValid && 'login__button_disabled'}`}
+            type="submit"
+            disabled={!isValid}
+            >
+              Войти
+          </button>
         </form>
         <p className="login__text">
           Ещё не зарегистрированы?&nbsp;

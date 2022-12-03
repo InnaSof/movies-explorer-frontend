@@ -16,7 +16,7 @@ function MoviesCard({ card }) {
       <div className="card__item">
         <div className="card__wrapper">
           <div className="card__text">
-            <h2 className="card__title">{card.name}</h2>
+            <h2 className="card__title">{card.nameRU}</h2>
             <p className="card__duration">{card.duration}</p>
           </div>
           {pathname === '/movies'  &&
@@ -35,7 +35,7 @@ function MoviesCard({ card }) {
             />
           }   
         </div>
-        <img className="card__img" src={card.movie} alt={card.name} />
+        <img className="card__img" src={card.movie} alt={card.nameRU} />
       </div>
     </li>
   );

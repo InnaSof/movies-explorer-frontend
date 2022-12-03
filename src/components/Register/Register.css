@@ -47,14 +47,10 @@
   border-radius: 8px;
   border-style: none;
   padding: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-weight: 400;
   font-size: 13px;
   line-height: 16px;
-}
-
-.register__input:last-of-type {
-  margin-bottom: 10px;
 }
 
 .register__error {
@@ -105,6 +101,18 @@
 }
 
 .register__redirect-btn:hover {
+  opacity: 0.6;
+}
+
+.register__button_disabled {
+  background-color: #f8f8f8;
+  color: #8B8B8B;
+  cursor: default;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.register__button_disabled:hover {
   opacity: 0.6;
 }
 
