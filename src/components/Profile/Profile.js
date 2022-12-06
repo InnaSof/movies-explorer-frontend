@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import './Profile.css';
-import { Link } from "react-router-dom";
+import "./Profile.css";
 import useFormWithValidation from "../../utils/useFormWithValidation";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
@@ -9,15 +8,22 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
   const currentUser = useContext(CurrentUserContext);
 
   const { values, handleChange, resetForm, errors, isValid } = useFormWithValidation();
+  const [isProfileEdit, setIsProfileEdit] = React.useState(false);
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    onUpdateUser(values.name, values.email);
+    onUpdateUser(values);
   }
 
   useEffect(() => {
-    resetForm();
-  }, [resetForm]);
+    currentUser.name !== values.name || currentUser.email !== values.email ?
+      setIsProfileEdit(true) : setIsProfileEdit(false);
+  }, [currentUser.name, currentUser.email, values.email, values.name]);
+
+
+  useEffect(() => {
+    resetForm({ name: currentUser.name, email: currentUser.email }, {}, false)
+  }, [resetForm, currentUser])
 
   return (
     <section className="profile">
@@ -32,12 +38,12 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
             <label className="profile__form-label">
               <p className="profile__form-text">Имя</p>
               <input
-                defaultValue={currentUser.name}
+                value={values.name || ''}
                 className="profile__form-input"
                 type="text"
                 placeholder="Имя"
                 onChange={handleChange}
-                name="profileName"
+                name="name"
                 id="name-input"
                 required
                 minLength={2}
@@ -46,17 +52,16 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
             </label>
             <span className="profile__error">{errors.name}</span>
           </div>
-          
           <div className="profile__form-field">
             <label className="profile__form-label">
               <p className="profile__form-text">E-mail</p>
               <input
-                defaultValue={currentUser.email}
+                value={values.email || ''}
                 className="profile__form-input"
                 type="email"
                 placeholder="E-mail"
                 onChange={handleChange}
-                name="profileEmail"
+                name="email"
                 id="email-input"
                 required
                 minLength={2}
@@ -64,19 +69,22 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
               />
             </label>
             <span className="profile__error">{errors.email}</span>
-            <span className="profile__error">{profileError}</span>
+            <span className="profile__error-server">{profileError}</span>
           </div>
-        </form>
-        <button 
-          className={`profile__btn-edit ${!isValid && 'profile__btn-edit_disabled'}`}
-          type="submit"
-          disabled={isValid ? true : false}
+          <button 
+            className={`profile__btn-edit ${!isValid && 'profile__btn-edit_disabled'}`}
+            type="submit"
+            disabled={!isValid && !isProfileEdit}
           >
             Редактировать
+          </button>
+        </form>
+        <button 
+          className="profile__btn-exit" 
+          type="button"
+          onClick={onSignOut}>
+            Выйти из аккаунта
         </button>
-        <Link to="/signin" className="profile__btn-exit" onClick={onSignOut}>
-          Выйти из аккаунта
-        </Link>
       </div>
     </section>
   );

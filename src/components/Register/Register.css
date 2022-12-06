@@ -60,6 +60,14 @@
   color: #EE3465;  
 }
 
+.register__error-server {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 14px;
+  color: #EE3465;
+  text-align: center;
+}
+
 .register__button {
   width: 100%;
   font-weight: 500;

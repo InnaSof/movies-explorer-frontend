@@ -71,7 +71,7 @@ function Register({ onRegister, registerError }) {
             maxLength={40}
           />
           <span className="register__error">{errors.password}</span>
-          <span className="register__error">{registerError}</span>
+          <span className="register__error-server">{registerError}</span>
           <button 
             className={`register__button ${!isValid && 'register__button_disabled'}`}
             type="submit"

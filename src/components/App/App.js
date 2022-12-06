@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Route, Switch, useHistory, Redirect, useLocation } from 'react-router-dom';
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import "./App.css";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -26,6 +26,78 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(state);
   const history = useHistory();
   const location = useLocation();
+
+  const headerEndpoints = ['/', '/movies', '/saved-movies', '/profile'];
+  const footerEndpoints = ['/', '/movies', '/saved-movies'];
+
+  const [movies, setMovies] = useState([]); // Стейт всех фильмов
+  const [savedMovies, setSavedMovies] = useState([]); // Стейт сохраненных пользователем фильмов
+  const [preloaderStatus, setPreloaderStatus] = useState(false);
+  const [checkboxStatus, setCheckboxStatus] = useState(true);
+
+  // получение всех фильмов из API
+  useEffect(() => {
+    moviesApi.getInitialMovies()
+      .then((movies) => {
+        setMovies(movies);
+      })
+      .catch(() => {
+        setRequestStatus('Во время запроса произошла ошибка. Возможно, проблема с соединением ' +
+          'или сервер недоступен. Подождите немного и попробуйте ещё раз');
+      })
+  }, [])
+
+    // получение информации о пользователе
+    useEffect(() => {
+      if (loggedIn) {
+        mainApi.getUserInfo()
+          .then((user) => {
+            setCurrentUser(user)
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+    }, [loggedIn]);
+
+      // получение массива сохраненных фильмов
+  useEffect(() => {
+    if (loggedIn && currentUser) {
+      mainApi.getSavedMovies()
+        .then(({movies}) => {
+          movies.filter((m) => m.owner === currentUser._id);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  }, [currentUser, loggedIn]);
+
+// cохранить фильм
+  function handleSaveMovie(movie) {
+    mainApi.addMovie(movie)
+      .then((newMovie) => {
+        setSavedMovies([newMovie, ...savedMovies]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+//удалить фильм
+  function handleDeleteMovie(movie) {
+    mainApi.deleteMovie(movie._id)
+      .then(() => {
+        setSavedMovies((movies) =>
+          movies.filter((m) => 
+            m._id !== movie._id
+          )
+        )
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -85,13 +157,11 @@ function App() {
   function handleUpdateUser({ name, email }) {
     mainApi.editUserInfo(name, email)
       .then((res) => {
+        setLoggedIn(true);
         setCurrentUser(res);
         setRequestStatus('Данные успешно обновлены!');
       })
       .catch((err) => {
-        if (err === 401) {
-          return setRequestStatus('Неправильный email или пароль');
-        }
         if (err === 409) {
           return setRequestStatus('Пользователь с таким email уже существует');
         }
@@ -104,59 +174,78 @@ function App() {
   function handleSignOut() {
     localStorage.removeItem('token');
     setLoggedIn(false);
+    history.push("/");
+    setCurrentUser({});
   }
+
+//   function handleSearchSubmit(movie, checked) { // функция, которая сохраняет нужный фильм
+//     setRequestStatus('');
+//     setPreloaderStatus(true);
+//     let filterMovies = movies.filter(item => item.nameRU.toLowerCase().includes(movie.toLowerCase()));
+//     if (filterMovies.length === 0) {
+//         setTimeout(() => setPreloaderStatus(false), 1000); // Таймер нужен, чтобы можно было увидеть загрузку
+//         setRequestStatus('Ничего не найдено');
+//     } else {
+//         setCheckboxStatus(false); // Разрешаем использование чекбокса после того как нашли фильм
+//         localStorage.setItem('filmName', movie);
+//         localStorage.setItem('foundFilms', JSON.stringify(filterMovies));
+//         localStorage.setItem('checkboxStatus', JSON.stringify(checked));
+//         setRequestStatus(filterMovies);
+//         setTimeout(() => setPreloaderStatus(false), 1000); // Таймер нужен, чтобы можно было увидеть загрузку
+//     }
+// }
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="app">
-
-        <Route path='/signup'>
-          <Register 
-            onRegister={handleRegister}
-            registerError={requestStatus}
+        <Route exact path={headerEndpoints}>
+          <Header 
+            loggedIn={loggedIn} 
           />
         </Route>
 
-        <Route path='/signin'>
-          <Login 
-            onLogin={handleLogin}
-            loginError={requestStatus}
-          />
-        </Route> 
-
-
-
-        <Header />
         <Switch>
-          <Route exact path="/">
+          <Route exact path='/'>
             <Main />
-            <Footer />
           </Route>
-
-          <Route path="/movies">
-            <Movies />
-            <Footer />
+          <Route path='/signup'>
+            <Register 
+              onRegister={handleRegister}
+              registerError={requestStatus}
+            />
           </Route>
-
-          {/* <ProtectedRoute 
-            path="/saved-movies"
-            component={SavedMovies}
-            >
-            <Footer />
-          </ProtectedRoute>
-    */}
-          <Route path='/profile'>
-            <Profile
-            loggedIn={loggedIn}
-            onUpdateUser={handleUpdateUser}
-            onSignOut={handleSignOut}
+          <Route path='/signin'>
+            <Login 
+              onLogin={handleLogin}
+              loginError={requestStatus}
             />
           </Route>
 
-          {/* <Route path="">
+          <ProtectedRoute
+            path='/profile'
+            component={Profile}
+            loggedIn={loggedIn}
+            onUpdateUser={handleUpdateUser}
+            onSignOut={handleSignOut}
+            profileError={requestStatus}
+          />
+
+          <ProtectedRoute
+            path='/movies'
+            component={Movies}
+            loggedIn={loggedIn}
+            onSaveMovie={handleSaveMovie}
+            onDeleteMovie={handleDeleteMovie}
+            searchStatus={requestStatus}
+          />
+
+          <Route path="*">
             <NotFoundPage />
-          </Route> */}
+          </Route>
         </Switch>
+        <Route exact path={footerEndpoints}>
+          <Footer />
+        </Route>
       </div>
     </CurrentUserContext.Provider>
   );

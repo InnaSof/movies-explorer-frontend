@@ -53,7 +53,7 @@ function Login({ onLogin, loginError }) {
             maxLength={40}
           />
           <span className="login__error">{errors.password}</span>
-          <span className="login__error-btn">{loginError}</span>
+          <span className="login__error-server">{loginError}</span>
           <button 
             className={`login__button ${!isValid && 'login__button_disabled'}`}
             type="submit"
