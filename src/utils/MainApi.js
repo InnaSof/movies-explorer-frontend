@@ -44,22 +44,22 @@ class MainApi {
     .then(this._handleResponse);
   }
 
-  addMovie(movie) {
+  addMovie(data) {
     return fetch(`${this._baseUrl}/movies`, {
       method: 'POST',
       headers: _getHeaders(),
       body: JSON.stringify({
-        country: movie.country,
-        director: movie.director,
-        duration: movie.duration,
-        year: movie.year,
-        description: movie.description,
-        image: movie.image,
-        trailerLink: movie.trailerLink,
-        thumbnail: movie.thumbnail,
-        movieId: movie.id,
-        nameRU: movie.nameRU,
-        nameEN: movie.nameEN,
+        country: data.country,
+        director: data.director,
+        duration: data.duration,
+        year: data.year,
+        description: data.description,
+        image: data.image,
+        trailerLink: data.trailerLink,
+        thumbnail: data.thumbnail,
+        movieId: data.id,
+        nameRU: data.nameRU,
+        nameEN: data.nameEN,
       }),
     })
     .then(this._handleResponse);

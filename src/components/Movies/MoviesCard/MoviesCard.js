@@ -2,25 +2,27 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import "./MoviesCard.css";
 
-function MoviesCard({ movie, onDeleteMovie, onSaveMovie }) {
+function MoviesCard({ movie, saved, onLikeClick, onDeleteClick }) {
   const { pathname } = useLocation();
-  const [isClickedLike, setIsClickedLike] = React.useState(false);
 
+  // сохранение фильма
+  function handleLikeMovie() {
+    onLikeClick(movie);
+  }
+
+  // удаление фильма
   function handleDeleteMovie() {
-    setIsClickedLike(false);
-    onDeleteMovie(movie);
+    onDeleteClick(movie);
   }
 
-  function handleSaveMovie() {
-    setIsClickedLike(true);
-    onSaveMovie(movie);
-  }
-
-  function movieDuration(min) {
-    return `${Math.floor(min / 60)}ч ${min % 60}мин`;
-  }
   const serverUrl = 'https://api.nomoreparties.co';
-  
+
+  function movieDuration(time) {
+    const hours = Math.floor(time / 60);
+    const minutes = time % 60;
+    return hours + "ч " + minutes + "м";
+  }
+
   return (
     <li className="movie">
       <div className="card__item">
@@ -32,9 +34,9 @@ function MoviesCard({ movie, onDeleteMovie, onSaveMovie }) {
           {pathname === '/movies'  &&
             <button 
               type="button" 
-              className={`card__button card__button${isClickedLike ? '_active' : '_inactive'}`} 
-              aria-label={`${isClickedLike ? 'Удалить из сохранённых' : 'Сохранить'}`}
-              onClick={isClickedLike ? handleDeleteMovie : handleSaveMovie}
+              className={`card__button card__button${saved ? '_active' : '_inactive'}`} 
+              aria-label={`${saved ? 'Удалить из сохранённых' : 'Сохранить'}`}
+              onClick={saved ? handleDeleteMovie : handleLikeMovie}
             />
           }
           {pathname === '/saved-movies'  &&
@@ -47,11 +49,7 @@ function MoviesCard({ movie, onDeleteMovie, onSaveMovie }) {
           }   
         </div>
         <a href={movie.trailerLink} target="_blank" rel="noreferrer">
-          <img 
-            className="card__img" 
-            src={pathname === '/movies' ? serverUrl + movie.image.url : movie.image}
-            alt={movie.nameRU} 
-          />
+          <img className="card__img" src={pathname === '/movies' ? serverUrl + movie.image.url : movie.image} alt={movie.nameRU} />
         </a>
       </div>
     </li>

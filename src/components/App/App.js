@@ -16,7 +16,6 @@ import Preloader from "../Movies/Preloader/Preloader";
 
 import * as auth from "../../utils/auth";
 import mainApi from "../../utils/MainApi";
-import moviesApi from "../../utils/MoviesApi";
 
 function App() {
   const history = useHistory();
@@ -27,11 +26,8 @@ function App() {
 
   const [currentUser, setCurrentUser] = useState({});
   const [requestStatus, setRequestStatus] = useState('');
-  const [savedMovies, setSavedMovies] = useState([]);
   const [isLoader, setIsLoader] = useState(false);
-  const [initialMovies, setInitialMovies] = useState([]);
-  const [checkboxStatus, setCheckboxStatus] = useState(false);
-  const [renderedMovies, setRenderedMovies] = useState([]);
+  const [savedMoviesList, setSavedMoviesList] = useState([]);
 
   let state = !!localStorage.getItem('token');
   const [loggedIn, setLoggedIn] = useState(state);
@@ -115,99 +111,66 @@ function App() {
     setCurrentUser({});
   }
 
-  // cохранить фильм
-  function handleSaveMovie(movie) {
-    mainApi.addMovie(movie)
-      .then((newMovie) => {
-        setSavedMovies([newMovie, ...savedMovies]);
+    // cохранение фильма
+    function handleSaveMovie(movie) {
+      mainApi
+        .addMovie(movie)
+        .then(newMovie => setSavedMoviesList([newMovie, ...savedMoviesList]))
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+
+  // удаление фильма
+  function handleDeleteMovie(movie) {
+    const savedMovie = savedMoviesList.find(
+      (item) => item.movieId === movie.id || item.movieId === movie.movieId
+    );
+    mainApi
+      .deleteMovie(savedMovie._id)
+      .then(() => {
+        const newMoviesList = savedMoviesList.filter(m => {
+          if (movie.id === m.movieId || movie.movieId === m.movieId) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+        setSavedMoviesList(newMoviesList);
       })
       .catch((err) => {
         console.log(err);
       });
   }
 
-//удалить фильм
-  function handleDeleteMovie(movie) {
-    mainApi.deleteMovie(movie._id)
-      .then(() => {
-        setSavedMovies((movies) =>
-          movies.filter((m) => 
-            m._id !== movie._id
-          )
-        )
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }
-
-  // получение информации о пользователе
-  useEffect(() => {
-    if (loggedIn) {
-      mainApi.getUserInfo()
-        .then((user) => {
-          setCurrentUser(user)
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-    }
-  }, [loggedIn]);
-
   // получение массива сохраненных фильмов
   useEffect(() => {
     if (loggedIn && currentUser) {
-      mainApi.getSavedMovies()
-        .then(({movies}) => {
-          movies.filter((m) => m.owner === currentUser._id);
+      mainApi
+        .getSavedMovies()
+        .then(data => {
+          const UserMoviesList = data.filter(m => m.owner === currentUser._id);
+          setSavedMoviesList(UserMoviesList);
         })
         .catch((err) => {
-          console.error(err);
+          console.log(err);
         });
     }
   }, [currentUser, loggedIn]);
 
-  //поиск фильмов
-  function handleSearchMovie(checkboxStatus) {
-    setCheckboxStatus(checkboxStatus);
+    // получение информации о пользователе
+    useEffect(() => {
+      if (loggedIn) {
+        setIsLoader(true);
+        mainApi
+          .getUserInfo()
+          .then(res => setCurrentUser(res))
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }, [loggedIn]);
 
-    const initialMoviesInLocalStorage = JSON.parse(localStorage.getItem('initialMovies'));
-
-    if (!initialMoviesInLocalStorage) {
-      setIsLoader(true);
-      moviesApi.getInitialMovies()
-        .then((movies) => {
-          setInitialMovies(movies);
-          localStorage.setItem('initialMovies', JSON.stringify(movies));
-        })
-        .catch(() => {
-          requestStatus('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз.')
-        })
-        .finally(() => {
-          setIsLoader(false);
-        })
-    } else {
-      setInitialMovies(initialMoviesInLocalStorage);
-    }
-  }
-
-  // const getMovies = (filterCallback) => {
-  //   setIsDataLoading(true);
-  //   return moviesApi.getMovies()
-  //     .then((res) => {
-  //       setMovies(res);
-  //       filterCallback(res);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //       setIsInfoTooltipOpen(true);
-  //     })
-  //     .finally(() => {
-  //       setIsDataLoading(false)
-  //     })
-  // }
-
-      
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="app">
@@ -243,26 +206,25 @@ function App() {
             onSignOut={handleSignOut}
             profileError={requestStatus}
           />
+
           <ProtectedRoute
             path='/movies'
             component={Movies}
             loggedIn={loggedIn}
-            savedMovies={savedMovies}
-            onSaveMovie={handleSaveMovie}
-            onDeleteMovie={handleDeleteMovie}
-            searchError={requestStatus}
             setIsLoader={setIsLoader}
-            onSearch={handleSearchMovie}
-            renderedMovies={renderedMovies}
+            savedMoviesList={savedMoviesList}
+            onLikeClick={handleSaveMovie}
+            onDeleteClick={handleDeleteMovie}
+            movieError={requestStatus}
           />
-          <ProtectedRoute
-            path='/saved-movies'
-            component={SavedMovies}
-            loggedIn={loggedIn}
-            savedMovies={savedMovies}
-            onDeleteMovie={handleDeleteMovie}
-            searchError={requestStatus}
-          />
+            
+            <ProtectedRoute
+              path='/saved-movies'
+              component={SavedMovies}
+              loggedIn={loggedIn}
+              savedMoviesList={savedMoviesList}
+              onDeleteClick={handleDeleteMovie}
+            />
 
           <Preloader isOpen={isLoader} />
           <Route path="*">

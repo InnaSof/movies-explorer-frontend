@@ -1,27 +1,28 @@
 import React, { useState } from "react";
-import "./SearchForm.css";
 import { useLocation } from 'react-router-dom';
+import "./SearchForm.css";
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 
-function SearchForm({ onSearchSubmit, isCheckboxChecked, onCheckboxChange }) {
+function SearchForm({ handleSearchSubmit, handleShortMovies, shortMovies }) {
+  const { pathname } = useLocation();
 
-  const location = useLocation();
-  const [inputSearch, setInputSearch] = useState(location.pathname === '/movies' ? localStorage.getItem('inputSearch') || '' : '');
   const [searchError, setSearchError] = useState('');
+  const [searchMessage, setSearchMessage] = useState(pathname === '/movies' ? localStorage.getItem('searchMessage') || '' : '');
 
-  function handleInputChange(evt) {
-    setInputSearch(evt.target.value);
+  function handleChange(evt) {
+    setSearchError('');
+    setSearchMessage(evt.target.value);
   }
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    if (inputSearch === '') {
+    if (searchMessage === '') {
       setSearchError('Нужно ввести ключевое слово')
     } else {
-      onSearchSubmit(inputSearch);
+      handleSearchSubmit(searchMessage);
       setSearchError('');
     }
-    location.pathname === '/movies' && localStorage.setItem('inputSearch', inputSearch);
+    pathname === '/movies' && localStorage.setItem('searchMessage', searchMessage);
   }
 
   return (
@@ -29,6 +30,7 @@ function SearchForm({ onSearchSubmit, isCheckboxChecked, onCheckboxChange }) {
       <div className="search__container">
         <form 
           className="search__form"
+          name="search"
           onSubmit={handleSubmit}
           noValidate="" 
         >
@@ -38,15 +40,15 @@ function SearchForm({ onSearchSubmit, isCheckboxChecked, onCheckboxChange }) {
             placeholder="Фильм" 
             name="search" 
             required
-            value={inputSearch || ''}
-            onChange={handleInputChange}
+            value={searchMessage || ''}
+            onChange={handleChange}
           />
           <span className="search__error">{searchError}</span>
           <button className="search__btn" type="submit"></button>
         </form>
         <FilterCheckbox
-          isChecked={isCheckboxChecked}
-          onCheckboxChange={onCheckboxChange}
+          shortMovies={shortMovies}
+          handleShortMovies={handleShortMovies}
         />
       </div>
     </section>
