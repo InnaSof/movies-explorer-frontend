@@ -113,8 +113,7 @@ function App() {
 
     // cохранение фильма
     function handleSaveMovie(movie) {
-      mainApi
-        .addMovie(movie)
+      mainApi.addMovie(movie)
         .then(newMovie => setSavedMoviesList([newMovie, ...savedMoviesList]))
         .catch((err) => {
           console.log(err);
@@ -126,8 +125,7 @@ function App() {
     const savedMovie = savedMoviesList.find(
       (item) => item.movieId === movie.id || item.movieId === movie.movieId
     );
-    mainApi
-      .deleteMovie(savedMovie._id)
+    mainApi.deleteMovie(savedMovie._id)
       .then(() => {
         const newMoviesList = savedMoviesList.filter(m => {
           if (movie.id === m.movieId || movie.movieId === m.movieId) {
@@ -146,8 +144,7 @@ function App() {
   // получение массива сохраненных фильмов
   useEffect(() => {
     if (loggedIn && currentUser) {
-      mainApi
-        .getSavedMovies()
+      mainApi.getSavedMovies()
         .then(data => {
           const UserMoviesList = data.filter(m => m.owner === currentUser._id);
           setSavedMoviesList(UserMoviesList);
@@ -162,8 +159,7 @@ function App() {
     useEffect(() => {
       if (loggedIn) {
         setIsLoader(true);
-        mainApi
-          .getUserInfo()
+        mainApi.getUserInfo()
           .then(res => setCurrentUser(res))
           .catch((err) => {
             console.log(err);

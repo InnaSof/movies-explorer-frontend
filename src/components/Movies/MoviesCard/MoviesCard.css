@@ -26,6 +26,7 @@
   font-size: 15px;
   line-height: 18px;
   margin: 0;
+  max-width: 280px;
 }
 
 .card__duration {
