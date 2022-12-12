@@ -155,17 +155,18 @@ function App() {
     }
   }, [currentUser, loggedIn]);
 
-    // получение информации о пользователе
-    useEffect(() => {
-      if (loggedIn) {
-        setIsLoader(true);
-        mainApi.getUserInfo()
-          .then(res => setCurrentUser(res))
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-    }, [loggedIn]);
+      // получение информации о пользователе
+  useEffect(() => {
+    if (loggedIn) {
+      setIsLoader(true);
+      mainApi.getUserInfo()
+        .then(res => setCurrentUser(res))
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => setIsLoader(false));
+    }
+  }, [loggedIn]);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
