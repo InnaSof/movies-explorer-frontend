@@ -8,9 +8,10 @@ import "./MoviesCardList.css";
 function MoviesCardList({ moviesList, savedMoviesList, onLikeClick, onDeleteClick }) {
   const { pathname } = useLocation();
 
+  const { desktop, tablet, mobile } = DEVICE;
+
   const [showMovieList, setShowMovieList] = useState([]);
   const screenWidth = useScreenWidth();
-  const { desktop, tablet, mobile } = DEVICE;
   const [isMount, setIsMount] = useState(true);
   const [cardsShowDetails, setCardsShowDetails] = useState({ total: 12, more: 3 });
   

@@ -27,7 +27,7 @@ function Register({ onRegister, registerError }) {
         <form 
           className="register__form" 
           onSubmit={handleSubmit}
-          noValidate="" 
+          noValidate
         >
           <p className="register__form-text">Имя</p>
           <input

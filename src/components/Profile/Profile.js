@@ -32,7 +32,7 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
         <form 
           className="profile__form"
           onSubmit={handleSubmit}
-          noValidate="" 
+          noValidate
         >
           <div className="profile__form-field">
             <label className="profile__form-label">

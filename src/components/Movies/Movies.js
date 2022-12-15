@@ -15,29 +15,29 @@ function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
   const [isAllMovies, setIsAllMovies] = useState([]); // все фильмы от сервера, для единоразового обращения к нему
   const [requestStatus, setRequestStatus] = useState('');
 
-  function filterMovies(movies, userQuery, shortMoviesCheckbox) {
-    const moviesByUserQuery = movies.filter((movie) => {
+  function filterMovies(movies, userRequest, shortMoviesCheckbox) {
+    const moviesByUserRequest = movies.filter((movie) => {
       const movieRu = String(movie.nameRU).toLowerCase().trim();
       const movieEn = String(movie.nameEN).toLowerCase().trim();
-      const userMovie = userQuery.toLowerCase().trim();
+      const userMovie = userRequest.toLowerCase().trim();
       return movieRu.indexOf(userMovie) !== -1 || movieEn.indexOf(userMovie) !== -1;
     });
   
     if (shortMoviesCheckbox) {
-      return filterShortMovies(moviesByUserQuery);
+      return filterShortMovies(moviesByUserRequest);
     } else {
-      return moviesByUserQuery;
+      return moviesByUserRequest;
     }
   }
 
-  // фильтрация по длительности
-function filterShortMovies(movies) {
+    // фильтрация по длительности
+  function filterShortMovies(movies) {
     return movies.filter(movie => movie.duration < 40);
   }
 
-  // поиск по массиву и установка состояния
-  function handleSetFilteredMovies(movies, userQuery, shortMoviesCheckbox) {
-    const moviesList = filterMovies(movies, userQuery, shortMoviesCheckbox);
+  
+  function handleFilteredMovies(movies, userRequest, shortMoviesCheckbox) {
+    const moviesList = filterMovies(movies, userRequest, shortMoviesCheckbox);
     if (moviesList.length === 0) {
       setRequestStatus('Ничего не найдено.');
       setNotFound(true);
@@ -65,7 +65,7 @@ function filterShortMovies(movies) {
         .getInitialMovies()
         .then(movies => {
           setIsAllMovies(movies);
-          handleSetFilteredMovies(
+          handleFilteredMovies(
             inputValue,
             shortMovies
           );
@@ -74,7 +74,7 @@ function filterShortMovies(movies) {
           setRequestStatus('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз.')})
         .finally(() => setIsLoader(false));
     } else {
-      handleSetFilteredMovies(isAllMovies, inputValue, shortMovies);
+      handleFilteredMovies(isAllMovies, inputValue, shortMovies);
     }
   }
 

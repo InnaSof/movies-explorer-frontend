@@ -1,28 +1,25 @@
 import React, { useState } from "react";
-import { useLocation } from 'react-router-dom';
 import "./SearchForm.css";
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 
 function SearchForm({ handleSearchSubmit, handleShortMovies, shortMovies }) {
-  const { pathname } = useLocation();
 
   const [searchError, setSearchError] = useState('');
-  const [searchMessage, setSearchMessage] = useState(pathname === '/movies' ? localStorage.getItem('searchMessage') || '' : '');
+  const [searchText, setSearchText] = useState('');
 
   function handleChange(evt) {
     setSearchError('');
-    setSearchMessage(evt.target.value);
+    setSearchText(evt.target.value);
   }
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    if (searchMessage === '') {
+    if (searchText === '') {
       setSearchError('Нужно ввести ключевое слово')
     } else {
-      handleSearchSubmit(searchMessage);
+      handleSearchSubmit(searchText);
       setSearchError('');
     }
-    pathname === '/movies' && localStorage.setItem('searchMessage', searchMessage);
   }
 
   return (
@@ -32,7 +29,7 @@ function SearchForm({ handleSearchSubmit, handleShortMovies, shortMovies }) {
           className="search__form"
           name="search"
           onSubmit={handleSubmit}
-          noValidate="" 
+          noValidate
         >
           <input 
             className="search__input" 
@@ -40,7 +37,7 @@ function SearchForm({ handleSearchSubmit, handleShortMovies, shortMovies }) {
             placeholder="Фильм" 
             name="search" 
             required
-            value={searchMessage || ''}
+            value={searchText || ''}
             onChange={handleChange}
           />
           <span className="search__error">{searchError}</span>

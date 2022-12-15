@@ -111,20 +111,18 @@ function App() {
     setCurrentUser({});
   }
 
-    // cохранение фильма
-    function handleSaveMovie(movie) {
-      mainApi.addMovie(movie)
-        .then(newMovie => setSavedMoviesList([newMovie, ...savedMoviesList]))
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+  // cохранение фильма
+  function handleSaveMovie(movie) {
+    mainApi.addMovie(movie)
+      .then((newMovie) => setSavedMoviesList([newMovie, ...savedMoviesList]))
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   // удаление фильма
   function handleDeleteMovie(movie) {
-    const savedMovie = savedMoviesList.find(
-      (item) => item.movieId === movie.id || item.movieId === movie.movieId
-    );
+    const savedMovie = savedMoviesList.find((item) => item.movieId === movie.id || item.movieId === movie.movieId);
     mainApi.deleteMovie(savedMovie._id)
       .then(() => {
         const newMoviesList = savedMoviesList.filter(m => {

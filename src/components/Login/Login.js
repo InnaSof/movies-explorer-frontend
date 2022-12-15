@@ -24,7 +24,7 @@ function Login({ onLogin, loginError }) {
           <img className="login__logo" src={logo} alt="Логотип" />
         </Link>
         <h2 className="login__title">Рады видеть!</h2>
-        <form className="login__form" onSubmit={handleSubmit}>
+        <form className="login__form" onSubmit={handleSubmit} noValidate>
           <p className="login__form-text">E-mail</p>
           <input
             value={values.email || ''}
