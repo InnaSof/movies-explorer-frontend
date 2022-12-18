@@ -210,7 +210,6 @@ function App() {
             savedMoviesList={savedMoviesList}
             onLikeClick={handleSaveMovie}
             onDeleteClick={handleDeleteMovie}
-            movieError={requestStatus}
           />
             
             <ProtectedRoute
@@ -219,6 +218,7 @@ function App() {
               loggedIn={loggedIn}
               savedMoviesList={savedMoviesList}
               onDeleteClick={handleDeleteMovie}
+              movieError={requestStatus}
             />
 
           <Preloader isOpen={isLoader} />

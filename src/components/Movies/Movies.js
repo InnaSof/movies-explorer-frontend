@@ -55,7 +55,7 @@ function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
   }
 
   // поиск по запросу
-  function handleSearchSubmit(inputValue) {
+  function handleSearchMovies(inputValue) {
     localStorage.setItem(`${currentUser.email} - movieSearch`, inputValue);
     localStorage.setItem(`${currentUser.email} - shortMovies`, shortMovies);
 
@@ -118,7 +118,7 @@ function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
   return (
     <main className="movies">
       <SearchForm
-        handleSearchSubmit={handleSearchSubmit}
+        handleSearchSubmit={handleSearchMovies}
         handleShortMovies={handleShortMovies}
         shortMovies={shortMovies}
       />

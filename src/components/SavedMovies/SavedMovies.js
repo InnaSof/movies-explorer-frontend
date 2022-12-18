@@ -5,7 +5,7 @@ import SearchForm from "../Movies/SearchForm/SearchForm";
 import MoviesCardList from "../Movies/MoviesCardList/MoviesCardList";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
-function SavedMovies({ onDeleteClick, savedMoviesList, handleSearchSubmit }) {
+function SavedMovies({ onDeleteClick, savedMoviesList, setRequestStatus, movieError }) {
   const currentUser = useContext(CurrentUserContext);
 
   const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
@@ -17,6 +17,35 @@ function SavedMovies({ onDeleteClick, savedMoviesList, handleSearchSubmit }) {
 function filterShortMovies(movies) {
   return movies.filter(movie => movie.duration < 40);
 }
+
+// фильтрация по запросу
+function filterMovies(movies, userQuery, shortMoviesCheckbox) {
+  const moviesByUserQuery = movies.filter((movie) => {
+    const movieRu = String(movie.nameRU).toLowerCase().trim();
+    const movieEn = String(movie.nameEN).toLowerCase().trim();
+    const userMovie = userQuery.toLowerCase().trim();
+    return movieRu.indexOf(userMovie) !== -1 || movieEn.indexOf(userMovie) !== -1;
+  });
+
+  if (shortMoviesCheckbox) {
+    return filterShortMovies(moviesByUserQuery);
+  } else {
+    return moviesByUserQuery;
+  }
+}
+
+  // поиск по запросу
+  function handleSearchSavedMovies(inputValue) {
+    const moviesList = filterMovies(savedMoviesList, inputValue, shortMovies);
+    if (moviesList.length === 0) {
+      setNotFound(true);
+      // setRequestStatus('Ничего не найдено.');
+    } else {
+      setNotFound(false);
+      setFilteredMovies(moviesList);
+      setShowedMovies(moviesList);
+    }
+  }
 
   // состояние чекбокса
   function handleShortMovies() {
@@ -52,17 +81,17 @@ function filterShortMovies(movies) {
   return (
     <main className="saved-movies">
       <SearchForm
-        handleSearchSubmit={handleSearchSubmit}
+        handleSearchSubmit={handleSearchSavedMovies}
         handleShortMovies={handleShortMovies}
         shortMovies={shortMovies}
       />
-      {!NotFound && (
+      {!NotFound &&
         <MoviesCardList
           moviesList={showedMovies}
           savedMoviesList={savedMoviesList}
           onDeleteClick={onDeleteClick}
         />
-      )}
+      }
     </main>
   );
 }
