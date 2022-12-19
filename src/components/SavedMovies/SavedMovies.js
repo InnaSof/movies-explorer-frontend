@@ -1,17 +1,14 @@
 import './SavedMovies.css';
 import { useState, useContext, useEffect } from 'react';
-import { useLocation } from "react-router-dom";
-
+import Preloader from "../Movies/Preloader/Preloader";
 import SearchForm from "../Movies/SearchForm/SearchForm";
 import MoviesCardList from "../Movies/MoviesCardList/MoviesCardList";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
-function SavedMovies({ onDeleteClick, savedMoviesList, movieError, moviesList, setRequestStatus }) {
+function SavedMovies({ onDeleteClick, savedMoviesList, setRequestStatus, isFetching }) {
   const currentUser = useContext(CurrentUserContext);
-  const { pathname } = useLocation();
-
   const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
-  const [NotFound, setNotFound] = useState(false); // если по запросу ничего не найдено - скроем фильмы
+  const [isFound, setIsFound] = useState(false);
   const [showedMovies, setShowedMovies] = useState(savedMoviesList); // показываемывые фильмы
   const [filteredMovies, setFilteredMovies] = useState(showedMovies); // отфильтрованные по запросу фильмы
 
@@ -40,10 +37,10 @@ function filterMovies(movies, userQuery, shortMoviesCheckbox) {
   function handleSearchSavedMovies(inputValue) {
     const moviesList = filterMovies(savedMoviesList, inputValue, shortMovies);
     if (moviesList.length === 0) {
-      setNotFound(true);
+      setIsFound(true);
       setRequestStatus('Ничего не найдено.');
     } else {
-      setNotFound(false);
+      setIsFound(false);
       setFilteredMovies(moviesList);
       setShowedMovies(moviesList);
     }
@@ -55,11 +52,11 @@ function filterMovies(movies, userQuery, shortMoviesCheckbox) {
       setShortMovies(true);
       localStorage.setItem(`${currentUser.email} - shortSavedMovies`, true);
       setShowedMovies(filterShortMovies(filteredMovies));
-      filterShortMovies(filteredMovies).length === 0 ? setNotFound(true) : setNotFound(false);
+      filterShortMovies(filteredMovies).length === 0 ? setIsFound(true) : setIsFound(false);
     } else {
       setShortMovies(false);
       localStorage.setItem(`${currentUser.email} - shortSavedMovies`, false);
-      filteredMovies.length === 0 ? setNotFound(true) : setNotFound(false);
+      filteredMovies.length === 0 ? setIsFound(true) : setIsFound(false);
       setShowedMovies(filteredMovies);
     }
   }
@@ -77,7 +74,7 @@ function filterMovies(movies, userQuery, shortMoviesCheckbox) {
 
   useEffect(() => {
     setFilteredMovies(savedMoviesList);
-    savedMoviesList.length !== 0 ? setNotFound(false) : setNotFound(true);
+    savedMoviesList.length !== 0 ? setIsFound(false) : setIsFound(true);
   }, [savedMoviesList]);
 
   return (
@@ -87,13 +84,19 @@ function filterMovies(movies, userQuery, shortMoviesCheckbox) {
         handleShortMovies={handleShortMovies}
         shortMovies={shortMovies}
       />
-     {!NotFound && (
+     { isFetching ? (
+        <Preloader />
+      ) : !isFound ? (
       <MoviesCardList
         moviesList={showedMovies}
         savedMoviesList={savedMoviesList}
         onDeleteClick={onDeleteClick}
+        isFetching={isFetching}
       />
-     )}
+      ) : (
+        <p className="movies__nothing-found-text">Ничего не найдено</p>
+      )
+    }
     </main>
   )
 }

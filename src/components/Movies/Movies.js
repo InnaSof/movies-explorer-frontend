@@ -6,7 +6,7 @@ import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import moviesApi from "../../utils/MoviesApi";
 import Preloader from "../Movies/Preloader/Preloader";
 
-function Movies({ savedMoviesList, onLikeClick, onDeleteClick, setIsFetching, isFetching }) {
+function Movies({ savedMoviesList, onLikeClick, onDeleteClick, isFetching }) {
   const currentUser = useContext(CurrentUserContext);
 
   const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
@@ -41,10 +41,10 @@ function Movies({ savedMoviesList, onLikeClick, onDeleteClick, setIsFetching, is
   function handleFilteredMovies(movies, userRequest, shortMoviesCheckbox) {
     const moviesList = filterMovies(movies, userRequest, shortMoviesCheckbox);
     if (moviesList.length === 0) {
-      setIsFound(false);
+      setIsFound(true);
     } else {
       setInitialMovies(moviesList);
-      setIsFound(true);
+      setIsFound(false);
       setFilteredMovies(
         shortMoviesCheckbox ? filterShortMovies(moviesList) : moviesList
       );
@@ -75,7 +75,6 @@ function Movies({ savedMoviesList, onLikeClick, onDeleteClick, setIsFetching, is
       moviesApi.getInitialMovies()
         .then(movies => {
           setIsAllMovies(movies);
-          setIsFetching(false);
           handleFilteredMovies(
             inputValue,
             shortMovies
@@ -123,7 +122,7 @@ function Movies({ savedMoviesList, onLikeClick, onDeleteClick, setIsFetching, is
       />
      { isFetching ? (
         <Preloader />
-      ) : isFound ? (
+      ) : !isFound ? (
         <MoviesCardList
           moviesList={filteredMovies}
           savedMoviesList={savedMoviesList}
