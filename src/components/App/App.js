@@ -26,8 +26,8 @@ function App() {
 
   const [currentUser, setCurrentUser] = useState({});
   const [requestStatus, setRequestStatus] = useState('');
-  const [isLoader, setIsLoader] = useState(false);
   const [savedMoviesList, setSavedMoviesList] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
 
   let state = !!localStorage.getItem('token');
   const [loggedIn, setLoggedIn] = useState(state);
@@ -156,13 +156,13 @@ function App() {
       // получение информации о пользователе
   useEffect(() => {
     if (loggedIn) {
-      setIsLoader(true);
+      setIsFetching(true);
       mainApi.getUserInfo()
         .then(res => setCurrentUser(res))
         .catch((err) => {
           console.log(err);
         })
-        .finally(() => setIsLoader(false));
+        .finally(() => setIsFetching(false));
     }
   }, [loggedIn]);
 
@@ -206,22 +206,22 @@ function App() {
             path='/movies'
             component={Movies}
             loggedIn={loggedIn}
-            setIsLoader={setIsLoader}
             savedMoviesList={savedMoviesList}
             onLikeClick={handleSaveMovie}
             onDeleteClick={handleDeleteMovie}
+            isFetching={isFetching}
           />
             
-            <ProtectedRoute
-              path='/saved-movies'
-              component={SavedMovies}
-              loggedIn={loggedIn}
-              savedMoviesList={savedMoviesList}
-              onDeleteClick={handleDeleteMovie}
-              movieError={requestStatus}
-            />
+          <ProtectedRoute
+            path='/saved-movies'
+            component={SavedMovies}
+            loggedIn={loggedIn}
+            savedMoviesList={savedMoviesList}
+            onDeleteClick={handleDeleteMovie}
+            isFetching={isFetching}
+          />
 
-          <Preloader isOpen={isLoader} />
+          <Preloader />
           <Route path="*">
             <NotFoundPage />
           </Route>

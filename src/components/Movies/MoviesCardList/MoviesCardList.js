@@ -56,7 +56,6 @@ function MoviesCardList({ moviesList, savedMoviesList, onLikeClick, onDeleteClic
     });
   }
 
-  
   return (
     <section className="cards__movies">
       <ul className="cards__list">

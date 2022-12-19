@@ -4,15 +4,17 @@ import SearchForm from "../Movies/SearchForm/SearchForm";
 import MoviesCardList from "../Movies/MoviesCardList/MoviesCardList";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import moviesApi from "../../utils/MoviesApi";
+import Preloader from "../Movies/Preloader/Preloader";
 
-function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
+function Movies({ savedMoviesList, onLikeClick, onDeleteClick, setIsFetching, isFetching }) {
   const currentUser = useContext(CurrentUserContext);
 
   const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
   const [initialMovies, setInitialMovies] = useState([]); // фильмы полученные с запроса
   const [filteredMovies, setFilteredMovies] = useState([]); // отфильтрованные по чекбоксу и запросу фильмы
-  const [NotFound, setNotFound] = useState(false); // если по запросу ничего не найдено - скроем фильмы
-  const [isAllMovies, setIsAllMovies] = useState([]); // все фильмы от сервера, для единоразового обращения к нему
+  const [isAllMovies, setIsAllMovies] = useState([]);
+  const [isFound, setIsFound] = useState(false);
+
   const [requestStatus, setRequestStatus] = useState('');
 
   function filterMovies(movies, userRequest, shortMoviesCheckbox) {
@@ -39,20 +41,30 @@ function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
   function handleFilteredMovies(movies, userRequest, shortMoviesCheckbox) {
     const moviesList = filterMovies(movies, userRequest, shortMoviesCheckbox);
     if (moviesList.length === 0) {
-      setRequestStatus('Ничего не найдено.');
-      setNotFound(true);
+      setIsFound(false);
     } else {
-      setNotFound(false);
+      setInitialMovies(moviesList);
+      setIsFound(true);
+      setFilteredMovies(
+        shortMoviesCheckbox ? filterShortMovies(moviesList) : moviesList
+      );
+      localStorage.setItem(
+        `${currentUser.email} - movies`,
+        JSON.stringify(moviesList)
+      );
     }
-    setInitialMovies(moviesList);
-    setFilteredMovies(
-      shortMoviesCheckbox ? filterShortMovies(moviesList) : moviesList
-    );
-    localStorage.setItem(
-      `${currentUser.email} - movies`,
-      JSON.stringify(moviesList)
-    );
   }
+
+    // состояние чекбокса
+    function handleShortMovies() {
+      setShortMovies(!shortMovies);
+      if (!shortMovies) {
+        setFilteredMovies(filterShortMovies(initialMovies));
+      } else {
+        setFilteredMovies(initialMovies);
+      }
+      localStorage.setItem(`${currentUser.email} - shortMovies`, !shortMovies);
+    }
 
   // поиск по запросу
   function handleSearchMovies(inputValue) {
@@ -60,11 +72,10 @@ function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
     localStorage.setItem(`${currentUser.email} - shortMovies`, shortMovies);
 
     if (isAllMovies.length === 0) {
-      setIsLoader(true);
-      moviesApi
-        .getInitialMovies()
+      moviesApi.getInitialMovies()
         .then(movies => {
           setIsAllMovies(movies);
+          setIsFetching(false);
           handleFilteredMovies(
             inputValue,
             shortMovies
@@ -72,21 +83,9 @@ function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
         })
         .catch(() => {
           setRequestStatus('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз.')})
-        .finally(() => setIsLoader(false));
     } else {
       handleFilteredMovies(isAllMovies, inputValue, shortMovies);
     }
-  }
-
-  // состояние чекбокса
-  function handleShortMovies() {
-    setShortMovies(!shortMovies);
-    if (!shortMovies) {
-      setFilteredMovies(filterShortMovies(initialMovies));
-    } else {
-      setFilteredMovies(initialMovies);
-    }
-    localStorage.setItem(`${currentUser.email} - shortMovies`, !shortMovies);
   }
 
   // проверка чекбокса в локальном хранилище
@@ -122,14 +121,20 @@ function Movies({ setIsLoader, savedMoviesList, onLikeClick, onDeleteClick }) {
         handleShortMovies={handleShortMovies}
         shortMovies={shortMovies}
       />
-      {!NotFound && (
+     { isFetching ? (
+        <Preloader />
+      ) : isFound ? (
         <MoviesCardList
           moviesList={filteredMovies}
           savedMoviesList={savedMoviesList}
           onLikeClick={onLikeClick}
           onDeleteClick={onDeleteClick}
+          isFetching={isFetching}
         />
-      )}
+        ) : (
+          <p className="movies__nothing-found-text">Ничего не найдено</p>
+        )
+      }
     </main>
   );
 }

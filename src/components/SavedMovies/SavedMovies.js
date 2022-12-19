@@ -1,12 +1,14 @@
 import './SavedMovies.css';
 import { useState, useContext, useEffect } from 'react';
+import { useLocation } from "react-router-dom";
 
 import SearchForm from "../Movies/SearchForm/SearchForm";
 import MoviesCardList from "../Movies/MoviesCardList/MoviesCardList";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
-function SavedMovies({ onDeleteClick, savedMoviesList, setRequestStatus, movieError }) {
+function SavedMovies({ onDeleteClick, savedMoviesList, movieError, moviesList, setRequestStatus }) {
   const currentUser = useContext(CurrentUserContext);
+  const { pathname } = useLocation();
 
   const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
   const [NotFound, setNotFound] = useState(false); // если по запросу ничего не найдено - скроем фильмы
@@ -39,7 +41,7 @@ function filterMovies(movies, userQuery, shortMoviesCheckbox) {
     const moviesList = filterMovies(savedMoviesList, inputValue, shortMovies);
     if (moviesList.length === 0) {
       setNotFound(true);
-      // setRequestStatus('Ничего не найдено.');
+      setRequestStatus('Ничего не найдено.');
     } else {
       setNotFound(false);
       setFilteredMovies(moviesList);
@@ -85,15 +87,15 @@ function filterMovies(movies, userQuery, shortMoviesCheckbox) {
         handleShortMovies={handleShortMovies}
         shortMovies={shortMovies}
       />
-      {!NotFound &&
-        <MoviesCardList
-          moviesList={showedMovies}
-          savedMoviesList={savedMoviesList}
-          onDeleteClick={onDeleteClick}
-        />
-      }
+     {!NotFound && (
+      <MoviesCardList
+        moviesList={showedMovies}
+        savedMoviesList={savedMoviesList}
+        onDeleteClick={onDeleteClick}
+      />
+     )}
     </main>
-  );
+  )
 }
 
 export default SavedMovies;
