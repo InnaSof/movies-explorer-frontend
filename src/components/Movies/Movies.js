@@ -2,11 +2,12 @@ import React, { useState, useContext, useEffect } from "react";
 import "./Movies.css";
 import SearchForm from "../Movies/SearchForm/SearchForm";
 import MoviesCardList from "../Movies/MoviesCardList/MoviesCardList";
-import { CurrentUserContext } from "../../contexts/CurrentUserContext";
-import moviesApi from "../../utils/MoviesApi";
 import Preloader from "../Movies/Preloader/Preloader";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
+import { filterMovies, filterShortMovies } from "../../utils/filterMovies";
+import moviesApi from "../../utils/MoviesApi";
 
-function Movies({ savedMoviesList, onLikeClick, onDeleteClick, isFetching }) {
+function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
   const currentUser = useContext(CurrentUserContext);
 
   const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
@@ -14,30 +15,45 @@ function Movies({ savedMoviesList, onLikeClick, onDeleteClick, isFetching }) {
   const [filteredMovies, setFilteredMovies] = useState([]); // отфильтрованные по чекбоксу и запросу фильмы
   const [isAllMovies, setIsAllMovies] = useState([]);
   const [isFound, setIsFound] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
-  const [requestStatus, setRequestStatus] = useState('');
-
-  function filterMovies(movies, userRequest, shortMoviesCheckbox) {
-    const moviesByUserRequest = movies.filter((movie) => {
-      const movieRu = String(movie.nameRU).toLowerCase().trim();
-      const movieEn = String(movie.nameEN).toLowerCase().trim();
-      const userMovie = userRequest.toLowerCase().trim();
-      return movieRu.indexOf(userMovie) !== -1 || movieEn.indexOf(userMovie) !== -1;
-    });
-  
-    if (shortMoviesCheckbox) {
-      return filterShortMovies(moviesByUserRequest);
+    // проверка чекбокса в локальном хранилище
+  useEffect(() => {
+    if (localStorage.getItem(`${currentUser.email} - shortMovies`) === 'true') {
+      setShortMovies(true);
     } else {
-      return moviesByUserRequest;
+      setShortMovies(false);
     }
-  }
-
-    // фильтрация по длительности
-  function filterShortMovies(movies) {
-    return movies.filter(movie => movie.duration < 40);
-  }
-
+  }, [currentUser]);
   
+    // рендер фильмов из локального хранилища
+  useEffect(() => {
+    if (localStorage.getItem(`${currentUser.email} - movies`)) {
+      const movies = JSON.parse(
+        localStorage.getItem(`${currentUser.email} - movies`)
+      );
+      setInitialMovies(movies);
+      if (
+        localStorage.getItem(`${currentUser.email} - shortMovies`) === 'true'
+      ) {
+        setFilteredMovies(filterShortMovies(movies));
+      } else {
+        setFilteredMovies(movies);
+      }
+    }
+  }, [currentUser]);
+
+  // состояние чекбокса
+  function handleShortMovies() {
+    setShortMovies(!shortMovies);
+    if (!shortMovies) {
+      setFilteredMovies(filterShortMovies(initialMovies));
+    } else {
+      setFilteredMovies(initialMovies);
+    }
+    localStorage.setItem(`${currentUser.email} - shortMovies`, !shortMovies);
+  }
+
   function handleFilteredMovies(movies, userRequest, shortMoviesCheckbox) {
     const moviesList = filterMovies(movies, userRequest, shortMoviesCheckbox);
     if (moviesList.length === 0) {
@@ -55,24 +71,14 @@ function Movies({ savedMoviesList, onLikeClick, onDeleteClick, isFetching }) {
     }
   }
 
-    // состояние чекбокса
-    function handleShortMovies() {
-      setShortMovies(!shortMovies);
-      if (!shortMovies) {
-        setFilteredMovies(filterShortMovies(initialMovies));
-      } else {
-        setFilteredMovies(initialMovies);
-      }
-      localStorage.setItem(`${currentUser.email} - shortMovies`, !shortMovies);
-    }
-
   // поиск по запросу
   function handleSearchMovies(inputValue) {
     localStorage.setItem(`${currentUser.email} - movieSearch`, inputValue);
     localStorage.setItem(`${currentUser.email} - shortMovies`, shortMovies);
 
     if (isAllMovies.length === 0) {
-      moviesApi.getInitialMovies()
+      setIsFetching(true);
+      moviesApi.getMovies()
         .then(movies => {
           setIsAllMovies(movies);
           handleFilteredMovies(
@@ -80,38 +86,14 @@ function Movies({ savedMoviesList, onLikeClick, onDeleteClick, isFetching }) {
             shortMovies
           );
         })
-        .catch(() => {
-          setRequestStatus('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз.')})
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => setIsFetching(false));
     } else {
       handleFilteredMovies(isAllMovies, inputValue, shortMovies);
     }
   }
-
-  // проверка чекбокса в локальном хранилище
-  useEffect(() => {
-    if (localStorage.getItem(`${currentUser.email} - shortMovies`) === 'true') {
-      setShortMovies(true);
-    } else {
-      setShortMovies(false);
-    }
-  }, [currentUser]);
-
-  // рендер фильмов из локального хранилища
-  useEffect(() => {
-    if (localStorage.getItem(`${currentUser.email} - movies`)) {
-      const movies = JSON.parse(
-        localStorage.getItem(`${currentUser.email} - movies`)
-      );
-      setInitialMovies(movies);
-      if (
-        localStorage.getItem(`${currentUser.email} - shortMovies`) === 'true'
-      ) {
-        setFilteredMovies(filterShortMovies(movies));
-      } else {
-        setFilteredMovies(movies);
-      }
-    }
-  }, [currentUser]);
 
   return (
     <main className="movies">
@@ -128,7 +110,6 @@ function Movies({ savedMoviesList, onLikeClick, onDeleteClick, isFetching }) {
           savedMoviesList={savedMoviesList}
           onLikeClick={onLikeClick}
           onDeleteClick={onDeleteClick}
-          isFetching={isFetching}
         />
         ) : (
           <p className="movies__nothing-found-text">Ничего не найдено</p>

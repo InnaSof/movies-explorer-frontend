@@ -12,22 +12,21 @@ import Profile from "../Profile/Profile";
 import NotFoundPage from "../NotFoundPage/NotFoundPage";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
-import Preloader from "../Movies/Preloader/Preloader";
 
 import * as auth from "../../utils/auth";
 import mainApi from "../../utils/MainApi";
 
 function App() {
   const history = useHistory();
-  const location = useLocation();
+  const { pathname } = useLocation();
   
   const headerEndpoints = ['/', '/movies', '/saved-movies', '/profile'];
   const footerEndpoints = ['/', '/movies', '/saved-movies'];
 
   const [currentUser, setCurrentUser] = useState({});
   const [requestStatus, setRequestStatus] = useState('');
+
   const [savedMoviesList, setSavedMoviesList] = useState([]);
-  const [isFetching, setIsFetching] = useState(true);
 
   let state = !!localStorage.getItem('token');
   const [loggedIn, setLoggedIn] = useState(state);
@@ -39,13 +38,38 @@ function App() {
         .then((res) => {
           setLoggedIn(true);
           setCurrentUser(res);
-          history.push(location.pathname);
+          history.push(pathname);
         })
         .catch((err) => {
           console.log(err);
         });
     }
-  },[history, location.pathname, loggedIn]);
+  },[history, pathname, loggedIn]);
+
+  // получение информации о пользователе
+  useEffect(() => {
+    if (loggedIn) {
+      mainApi.getUserInfo()
+        .then(res => setCurrentUser(res))
+        .catch((err) => {
+          console.log(err);
+        })
+    }
+  }, [loggedIn, setCurrentUser]);
+
+  // получение массива сохраненных фильмов
+  useEffect(() => {
+    if (loggedIn && currentUser) {
+      mainApi.getSavedMovies()
+        .then(data => {
+          const UserMoviesList = data.filter(m => m.owner === currentUser._id);
+          setSavedMoviesList(UserMoviesList);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [currentUser, loggedIn]);
 
   function handleRegister({ name, email, password }) {
     auth.register(name, email, password)
@@ -139,33 +163,6 @@ function App() {
       });
   }
 
-  // получение массива сохраненных фильмов
-  useEffect(() => {
-    if (loggedIn && currentUser) {
-      mainApi.getSavedMovies()
-        .then(data => {
-          const UserMoviesList = data.filter(m => m.owner === currentUser._id);
-          setSavedMoviesList(UserMoviesList);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }, [currentUser, loggedIn]);
-
-      // получение информации о пользователе
-  useEffect(() => {
-    if (loggedIn) {
-      setIsFetching(true);
-      mainApi.getUserInfo()
-        .then(res => setCurrentUser(res))
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => setIsFetching(false));
-    }
-  }, [loggedIn]);
-
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="app">
@@ -206,22 +203,20 @@ function App() {
             path='/movies'
             component={Movies}
             loggedIn={loggedIn}
-            savedMoviesList={savedMoviesList}
             onLikeClick={handleSaveMovie}
             onDeleteClick={handleDeleteMovie}
-            isFetching={isFetching}
+            savedMoviesList={savedMoviesList}
           />
             
           <ProtectedRoute
             path='/saved-movies'
             component={SavedMovies}
             loggedIn={loggedIn}
-            savedMoviesList={savedMoviesList}
+            currentUser={currentUser}
             onDeleteClick={handleDeleteMovie}
-            isFetching={isFetching}
+            savedMoviesList={savedMoviesList}
           />
 
-          <Preloader />
           <Route path="*">
             <NotFoundPage />
           </Route>

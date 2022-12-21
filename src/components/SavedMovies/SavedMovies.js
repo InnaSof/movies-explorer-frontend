@@ -4,41 +4,20 @@ import Preloader from "../Movies/Preloader/Preloader";
 import SearchForm from "../Movies/SearchForm/SearchForm";
 import MoviesCardList from "../Movies/MoviesCardList/MoviesCardList";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
+import { filterMovies, filterShortMovies } from "../../utils/filterMovies";
 
-function SavedMovies({ onDeleteClick, savedMoviesList, setRequestStatus, isFetching }) {
+function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
   const currentUser = useContext(CurrentUserContext);
   const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
   const [isFound, setIsFound] = useState(false);
   const [showedMovies, setShowedMovies] = useState(savedMoviesList); // показываемывые фильмы
   const [filteredMovies, setFilteredMovies] = useState(showedMovies); // отфильтрованные по запросу фильмы
 
-    // фильтрация по длительности
-function filterShortMovies(movies) {
-  return movies.filter(movie => movie.duration < 40);
-}
-
-// фильтрация по запросу
-function filterMovies(movies, userQuery, shortMoviesCheckbox) {
-  const moviesByUserQuery = movies.filter((movie) => {
-    const movieRu = String(movie.nameRU).toLowerCase().trim();
-    const movieEn = String(movie.nameEN).toLowerCase().trim();
-    const userMovie = userQuery.toLowerCase().trim();
-    return movieRu.indexOf(userMovie) !== -1 || movieEn.indexOf(userMovie) !== -1;
-  });
-
-  if (shortMoviesCheckbox) {
-    return filterShortMovies(moviesByUserQuery);
-  } else {
-    return moviesByUserQuery;
-  }
-}
-
   // поиск по запросу
   function handleSearchSavedMovies(inputValue) {
     const moviesList = filterMovies(savedMoviesList, inputValue, shortMovies);
     if (moviesList.length === 0) {
       setIsFound(true);
-      setRequestStatus('Ничего не найдено.');
     } else {
       setIsFound(false);
       setFilteredMovies(moviesList);
@@ -88,10 +67,9 @@ function filterMovies(movies, userQuery, shortMoviesCheckbox) {
         <Preloader />
       ) : !isFound ? (
       <MoviesCardList
-        moviesList={showedMovies}
+        moviesList={filteredMovies}
         savedMoviesList={savedMoviesList}
         onDeleteClick={onDeleteClick}
-        isFetching={isFetching}
       />
       ) : (
         <p className="movies__nothing-found-text">Ничего не найдено</p>
