@@ -12,7 +12,6 @@ function MoviesCardList({ moviesList, savedMoviesList, onLikeClick, onDeleteClic
 
   const [showMovieList, setShowMovieList] = useState([]);
   const screenWidth = useScreenWidth();
-  const [isMount, setIsMount] = useState(true);
   const [cardsShowDetails, setCardsShowDetails] = useState({ total: 12, more: 3 });
   
   // количество отображаемых карточек при разной ширине экрана
@@ -25,9 +24,8 @@ function MoviesCardList({ moviesList, savedMoviesList, onLikeClick, onDeleteClic
       } else {
         setCardsShowDetails(mobile.cards);
       }
-      return () => setIsMount(false);
     }
-  }, [screenWidth, isMount, desktop, tablet, mobile, pathname]);
+  }, [screenWidth, desktop, tablet, mobile, pathname]);
   
   // добавление карточек при клике по кнопке "Еще"
   function handleClickMoreMovies() {

@@ -16,6 +16,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
   const [isAllMovies, setIsAllMovies] = useState([]);
   const [isFound, setIsFound] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [searchError, setSearchError] = useState('');
 
     // проверка чекбокса в локальном хранилище
   useEffect(() => {
@@ -58,6 +59,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
     const moviesList = filterMovies(movies, userRequest, shortMoviesCheckbox);
     if (moviesList.length === 0) {
       setIsFound(true);
+      setSearchError('Ничего не найдено');
     } else {
       setInitialMovies(moviesList);
       setIsFound(false);
@@ -86,8 +88,8 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
             shortMovies
           );
         })
-        .catch((err) => {
-          console.log(err);
+        .catch(() => {
+          setSearchError('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз');
         })
         .finally(() => setIsFetching(false));
     } else {
@@ -112,7 +114,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
           onDeleteClick={onDeleteClick}
         />
         ) : (
-          <p className="movies__nothing-found-text">Ничего не найдено</p>
+          <span className="movies__nothing-found-text">{searchError}</span>
         )
       }
     </main>
