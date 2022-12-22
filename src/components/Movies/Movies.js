@@ -10,24 +10,24 @@ import moviesApi from "../../utils/MoviesApi";
 function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
   const currentUser = useContext(CurrentUserContext);
 
-  const [shortMovies, setShortMovies] = useState(false); // состояние чекбокса
-  const [initialMovies, setInitialMovies] = useState([]); // фильмы полученные с запроса
-  const [filteredMovies, setFilteredMovies] = useState([]); // отфильтрованные по чекбоксу и запросу фильмы
-  const [isAllMovies, setIsAllMovies] = useState([]);
-  const [isFound, setIsFound] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
-  const [searchError, setSearchError] = useState('');
+  const [checked, setChecked] = useState(false); // checkbox state
+  const [initialMovies, setInitialMovies] = useState([]); // movies received from the request
+  const [filteredMovies, setFilteredMovies] = useState([]); // movies filtered by checkbox and query
+  const [isAllMovies, setIsAllMovies] = useState([]); //all movies from the server
+  const [isNotFound, setIsNotFound] = useState(false); // state found or not
+  const [isFetching, setIsFetching] = useState(true); // data loading
+  const [searchError, setSearchError] = useState(""); // error state
 
-    // проверка чекбокса в локальном хранилище
+   //checking checkbox in local storage
   useEffect(() => {
-    if (localStorage.getItem(`${currentUser.email} - shortMovies`) === 'true') {
-      setShortMovies(true);
+    if (localStorage.getItem(`${currentUser.email} - checked`) === 'true') {
+      setChecked(true);
     } else {
-      setShortMovies(false);
+      setChecked(false);
     }
   }, [currentUser]);
   
-    // рендер фильмов из локального хранилища
+    // render movies from local storage
   useEffect(() => {
     if (localStorage.getItem(`${currentUser.email} - movies`)) {
       const movies = JSON.parse(
@@ -35,7 +35,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
       );
       setInitialMovies(movies);
       if (
-        localStorage.getItem(`${currentUser.email} - shortMovies`) === 'true'
+        localStorage.getItem(`${currentUser.email} - checked`) === 'true'
       ) {
         setFilteredMovies(filterShortMovies(movies));
       } else {
@@ -44,39 +44,37 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
     }
   }, [currentUser]);
 
-  // состояние чекбокса
+  // checkbox handler
   function handleShortMovies() {
-    setShortMovies(!shortMovies);
-    if (!shortMovies) {
+    setChecked(!checked);
+    if (!checked) {
       setFilteredMovies(filterShortMovies(initialMovies));
     } else {
       setFilteredMovies(initialMovies);
     }
-    localStorage.setItem(`${currentUser.email} - shortMovies`, !shortMovies);
+    localStorage.setItem(`${currentUser.email} - checked`, !checked);
   }
 
+  // array lookup and state setting
   function handleFilteredMovies(movies, userRequest, shortMoviesCheckbox) {
     const moviesList = filterMovies(movies, userRequest, shortMoviesCheckbox);
     if (moviesList.length === 0) {
-      setIsFound(true);
+      setIsNotFound(true);
       setSearchError('Ничего не найдено');
     } else {
       setInitialMovies(moviesList);
-      setIsFound(false);
+      setIsNotFound(false);
       setFilteredMovies(
         shortMoviesCheckbox ? filterShortMovies(moviesList) : moviesList
       );
-      localStorage.setItem(
-        `${currentUser.email} - movies`,
-        JSON.stringify(moviesList)
-      );
+      localStorage.setItem(`${currentUser.email} - movies`, JSON.stringify(moviesList));
     }
   }
 
-  // поиск по запросу
+  // search by request
   function handleSearchMovies(inputValue) {
     localStorage.setItem(`${currentUser.email} - movieSearch`, inputValue);
-    localStorage.setItem(`${currentUser.email} - shortMovies`, shortMovies);
+    localStorage.setItem(`${currentUser.email} - checked`, checked);
 
     if (isAllMovies.length === 0) {
       setIsFetching(true);
@@ -85,7 +83,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
           setIsAllMovies(movies);
           handleFilteredMovies(
             inputValue,
-            shortMovies
+            checked
           );
         })
         .catch(() => {
@@ -93,7 +91,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
         })
         .finally(() => setIsFetching(false));
     } else {
-      handleFilteredMovies(isAllMovies, inputValue, shortMovies);
+      handleFilteredMovies(isAllMovies, inputValue, checked);
     }
   }
 
@@ -102,11 +100,11 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
       <SearchForm
         handleSearchSubmit={handleSearchMovies}
         handleShortMovies={handleShortMovies}
-        shortMovies={shortMovies}
+        checked={checked}
       />
      { isFetching ? (
         <Preloader />
-      ) : !isFound ? (
+      ) : !isNotFound ? (
         <MoviesCardList
           moviesList={filteredMovies}
           savedMoviesList={savedMoviesList}

@@ -5,12 +5,10 @@ import "./MoviesCard.css";
 function MoviesCard({ movie, saved, onLikeClick, onDeleteClick }) {
   const { pathname } = useLocation();
 
-  // сохранение фильма
   function handleLikeMovie() {
     onLikeClick(movie);
   }
 
-  // удаление фильма
   function handleDeleteMovie() {
     onDeleteClick(movie);
   }

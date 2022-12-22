@@ -1,7 +1,7 @@
 import React from "react";
 import "./FilterCheckbox.css";
 
-function FilterCheckbox({ shortMovies, handleShortMovies }) {
+function FilterCheckbox({ checked, handleShortMovies }) {
 
   function handleChange() {
     handleShortMovies();
@@ -14,7 +14,7 @@ function FilterCheckbox({ shortMovies, handleShortMovies }) {
           className="filter__checkbox" 
           type="checkbox"
           onChange={handleChange}
-          checked={shortMovies ? true : false}
+          checked={checked ? true : false}
         />
         <p className='filter__title'>Короткометражки</p>
       </div>

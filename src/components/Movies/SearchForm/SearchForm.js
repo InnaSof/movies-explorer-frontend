@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./SearchForm.css";
 import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 
-function SearchForm({ handleSearchSubmit, handleShortMovies, shortMovies }) {
+function SearchForm({ handleSearchSubmit, handleShortMovies, checked }) {
 
   const [searchError, setSearchError] = useState('');
   const [searchText, setSearchText] = useState('');
@@ -44,7 +44,7 @@ function SearchForm({ handleSearchSubmit, handleShortMovies, shortMovies }) {
           <button className="search__btn" type="submit"></button>
         </form>
         <FilterCheckbox
-          shortMovies={shortMovies}
+          checked={checked}
           handleShortMovies={handleShortMovies}
         />
       </div>

@@ -44,7 +44,6 @@ class MainApi {
     .then(this._handleResponse);
   }
 
-  // сохранение фильма
   addMovie(movie) {
     return fetch(`${this._baseUrl}/movies`, {
       method: 'POST',
@@ -75,8 +74,12 @@ class MainApi {
   }
 }
 
+  // const mainApi = new MainApi({
+  //   baseUrl: 'http://localhost:3000'
+  // });
+
   const mainApi = new MainApi({
-    baseUrl: 'http://localhost:3000'
+    baseUrl: 'https://api.movies.diplom.nomorepartiesxyz.ru'
   });
 
 export default mainApi;

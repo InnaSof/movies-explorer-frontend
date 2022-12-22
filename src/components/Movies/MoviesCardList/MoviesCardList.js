@@ -9,46 +9,46 @@ function MoviesCardList({ moviesList, savedMoviesList, onLikeClick, onDeleteClic
   const { pathname } = useLocation();
 
   const { desktop, tablet, mobile } = DEVICE;
+  const screenWidth = useScreenWidth();
 
   const [showMovieList, setShowMovieList] = useState([]);
-  const screenWidth = useScreenWidth();
-  const [cardsShowDetails, setCardsShowDetails] = useState({ total: 12, more: 3 });
+  const [cardsShow, setCardsShow] = useState({ total: 12, add: 3 });
   
-  // количество отображаемых карточек при разной ширине экрана
+  //  the number of cards displayed at different screen widths
   useEffect(() => {
     if (pathname === '/movies') {
       if (screenWidth > desktop.width) {
-        setCardsShowDetails(desktop.cards);
+        setCardsShow(desktop.cards);
       } else if (screenWidth <= desktop.width && screenWidth > mobile.width) {
-        setCardsShowDetails(tablet.cards);
+        setCardsShow(tablet.cards);
       } else {
-        setCardsShowDetails(mobile.cards);
+        setCardsShow(mobile.cards);
       }
     }
   }, [screenWidth, desktop, tablet, mobile, pathname]);
   
-  // добавление карточек при клике по кнопке "Еще"
-  function handleClickMoreMovies() {
+  // adding cards when clicking on the "More" button
+  function handleClickMore() {
     const start = showMovieList.length;
-    const end = start + cardsShowDetails.more;
-    const additional = moviesList.length - start;
+    const end = start + cardsShow.add;
+    const add = moviesList.length - start;
 
-    if (additional > 0) {
+    if (add > 0) {
       const newCards = moviesList.slice(start, end);
       setShowMovieList([...showMovieList, ...newCards]);
     }
   }
 
-  // изменяем отображаемый массив фильмов в зависимости от ширины экрана
+  // change the displayed array of movies depending on the screen screenWidth
   useEffect(() => {
     if (moviesList.length) {
-      const res = moviesList.filter((item, i) => i < cardsShowDetails.total);
+      const res = moviesList.filter((item, i) => i < cardsShow.total);
       setShowMovieList(res);
     }
-  }, [moviesList, cardsShowDetails.total]);
+  }, [moviesList, cardsShow.total]);
 
 
-  function getSavedMovieCard(arr, movie) {
+  function getSavedMovie(arr, movie) {
     return arr.find((item) => {
       return item.movieId === (movie.id || movie.movieId);
     });
@@ -61,7 +61,7 @@ function MoviesCardList({ moviesList, savedMoviesList, onLikeClick, onDeleteClic
           <MoviesCard
             movie={movie}
             key={movie.id || movie._id}
-            saved={getSavedMovieCard(savedMoviesList, movie)}
+            saved={getSavedMovie(savedMoviesList, movie)}
             onLikeClick={onLikeClick}
             onDeleteClick={onDeleteClick}
           />
@@ -71,7 +71,7 @@ function MoviesCardList({ moviesList, savedMoviesList, onLikeClick, onDeleteClic
         {pathname === '/movies' && showMovieList.length >= 5 && showMovieList.length < moviesList.length && (
           <button 
             className="cards__more-button" 
-            onClick={handleClickMoreMovies}
+            onClick={handleClickMore}
             type="button">
               Ещё
           </button>

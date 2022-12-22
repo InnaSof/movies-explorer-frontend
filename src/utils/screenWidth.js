@@ -9,20 +9,20 @@ function useScreenWidth() {
       setScreenWidth(getScreenWidth());
     };
 
-    window.addEventListener('resize', resizeController, false); // устанавливаем обработчик при монтировании
+    window.addEventListener('resize', resizeController, false);
 
-    let timerResize;
+    let timer;
 
     function resizeController() {
-      if (!timerResize) {
-        timerResize = setTimeout(() => {
-          timerResize = null;
+      if (!timer) {
+        timer = setTimeout(() => {
+          timer = null;
           handleScreenResize();
         }, 1000);
       }
     };
 
-    return () => window.removeEventListener('resize', handleScreenResize);  // убираем при размонтировании
+    return () => window.removeEventListener('resize', handleScreenResize);
 
   }, [getScreenWidth]);
 
