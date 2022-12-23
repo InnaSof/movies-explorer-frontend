@@ -6,6 +6,8 @@
 
 Сайт доступен по [ссылке](https://movies.diplom.nomorepartiesxyz.ru/)
 
+[Ссылка на пул реквест](https://github.com/InnaSof/movies-explorer-frontend/pull/2)
+
 ---
 ## *Запуск проекта:*
 `npm i` — установка зависимостей
