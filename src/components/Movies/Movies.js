@@ -77,7 +77,6 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
     localStorage.setItem(`${currentUser.email} - checked`, checked);
 
     if (isAllMovies.length === 0) {
-      setIsFetching(true);
       moviesApi.getMovies()
         .then(movies => {
           setIsAllMovies(movies);
@@ -102,9 +101,10 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
         handleShortMovies={handleShortMovies}
         checked={checked}
       />
-     { isFetching ? (
+     {/* { isFetching ? (
         <Preloader />
-      ) : !isNotFound ? (
+      ) : !isNotFound ? ( */}
+        {!isNotFound ? (
         <MoviesCardList
           moviesList={filteredMovies}
           savedMoviesList={savedMoviesList}

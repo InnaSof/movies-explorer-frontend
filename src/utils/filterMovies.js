@@ -1,3 +1,5 @@
+import { SHORTMOVIE_DURATION } from "./constants";
+
 function filterMovies(movies, userRequest, shortMoviesCheckbox) {
   const moviesByUserRequest = movies.filter((movie) => {
     const movieRu = String(movie.nameRU).toLowerCase().trim();
@@ -15,7 +17,7 @@ function filterMovies(movies, userRequest, shortMoviesCheckbox) {
 
   // фильтрация по длительности
 function filterShortMovies(movies) {
-  return movies.filter(movie => movie.duration < 40);
+  return movies.filter(movie => movie.duration < SHORTMOVIE_DURATION);
 }
 
 export { filterMovies, filterShortMovies };

@@ -74,12 +74,12 @@ class MainApi {
   }
 }
 
-  // const mainApi = new MainApi({
-  //   baseUrl: 'http://localhost:3000'
-  // });
-
   const mainApi = new MainApi({
-    baseUrl: 'https://api.movies.diplom.nomorepartiesxyz.ru'
+    baseUrl: 'http://localhost:3000'
   });
+
+  // const mainApi = new MainApi({
+  //   baseUrl: 'https://api.movies.diplom.nomorepartiesxyz.ru'
+  // });
 
 export default mainApi;

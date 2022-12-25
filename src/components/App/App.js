@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
+import { Route, Switch, useHistory, useLocation, Redirect } from 'react-router-dom';
 import "./App.css";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -178,16 +178,25 @@ function App() {
           </Route>
 
           <Route path='/signup'>
-            <Register 
-              onRegister={handleRegister}
-              registerError={requestStatus}
-            />
+            {!loggedIn ? (
+              <Register 
+                onRegister={handleRegister}
+                registerError={requestStatus}
+              />
+            ) : (
+              <Redirect to='/' />
+            )}
           </Route>
+                    
           <Route path='/signin'>
-            <Login 
-              onLogin={handleLogin}
-              loginError={requestStatus}
-            />
+            {!loggedIn ? (
+              <Login 
+                onLogin={handleLogin}
+                loginError={requestStatus}
+              />
+            ) : (
+              <Redirect to='/' />
+            )}
           </Route>
 
           <ProtectedRoute
