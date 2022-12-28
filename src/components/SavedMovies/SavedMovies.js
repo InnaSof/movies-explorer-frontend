@@ -14,6 +14,21 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
   const [displayedMovies, setDisplayedMovies] = useState(savedMoviesList);
   const [filteredMovies, setFilteredMovies] = useState(displayedMovies);
 
+  // checkbox handler
+  function handleShortMovies() {
+    if (!checked) {
+      setChecked(true);
+      localStorage.setItem('shortSavedMovies', true);
+      setDisplayedMovies(filterShortMovies(filteredMovies));
+      filterShortMovies(filteredMovies).length === 0 ? setIsNotFound(true) : setIsNotFound(false);
+    } else {
+      setChecked(false);
+      localStorage.setItem('shortSavedMovies', false);
+      filteredMovies.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
+      setDisplayedMovies(filteredMovies);
+    }
+  }
+
   // search by request
   function handleSearchSavedMovies(inputValue) {
     const moviesList = filterMovies(savedMoviesList, inputValue, checked);
@@ -26,24 +41,9 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
     }
   }
 
-  // checkbox state
-  function handleShortMovies() {
-    if (!checked) {
-      setChecked(true);
-      localStorage.setItem(`${currentUser.email} - shortSavedMovies`, true);
-      setDisplayedMovies(filterShortMovies(filteredMovies));
-      filterShortMovies(filteredMovies).length === 0 ? setIsNotFound(true) : setIsNotFound(false);
-    } else {
-      setChecked(false);
-      localStorage.setItem(`${currentUser.email} - shortSavedMovies`, false);
-      filteredMovies.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
-      setDisplayedMovies(filteredMovies);
-    }
-  }
-
   // checking checkbox in local storage
   useEffect(() => {
-    if (localStorage.getItem(`${currentUser.email} - shortSavedMovies`) === 'true') {
+    if (localStorage.getItem('shortSavedMovies') === 'true') {
       setChecked(true);
       setDisplayedMovies(filterShortMovies(savedMoviesList));
     } else {

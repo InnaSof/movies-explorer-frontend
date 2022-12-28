@@ -18,32 +18,6 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
   const [isFetching, setIsFetching] = useState(true); // data loading
   const [searchError, setSearchError] = useState(""); // error state
 
-   //checking checkbox in local storage
-  useEffect(() => {
-    if (localStorage.getItem(`${currentUser.email} - checked`) === 'true') {
-      setChecked(true);
-    } else {
-      setChecked(false);
-    }
-  }, [currentUser]);
-  
-    // render movies from local storage
-  useEffect(() => {
-    if (localStorage.getItem(`${currentUser.email} - movies`)) {
-      const movies = JSON.parse(
-        localStorage.getItem(`${currentUser.email} - movies`)
-      );
-      setInitialMovies(movies);
-      if (
-        localStorage.getItem(`${currentUser.email} - checked`) === 'true'
-      ) {
-        setFilteredMovies(filterShortMovies(movies));
-      } else {
-        setFilteredMovies(movies);
-      }
-    }
-  }, [currentUser]);
-
   // checkbox handler
   function handleShortMovies() {
     setChecked(!checked);
@@ -52,8 +26,25 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
     } else {
       setFilteredMovies(initialMovies);
     }
-    localStorage.setItem(`${currentUser.email} - checked`, !checked);
+    localStorage.setItem('checked', !checked);
   }
+  
+    // render movies from local storage
+  useEffect(() => {
+    if (localStorage.getItem('movies')) {
+      const movies = JSON.parse(
+        localStorage.getItem('movies')
+      );
+      setInitialMovies(movies);
+      if (
+        localStorage.getItem('checked') === 'true'
+      ) {
+        setFilteredMovies(filterShortMovies(movies));
+      } else {
+        setFilteredMovies(movies);
+      }
+    }
+  }, [currentUser]);
 
   // array lookup and state setting
   function handleFilteredMovies(movies, userRequest, shortMoviesCheckbox) {
@@ -67,14 +58,14 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
       setFilteredMovies(
         shortMoviesCheckbox ? filterShortMovies(moviesList) : moviesList
       );
-      localStorage.setItem(`${currentUser.email} - movies`, JSON.stringify(moviesList));
+      localStorage.setItem('movies', JSON.stringify(moviesList));
     }
   }
 
   // search by request
   function handleSearchMovies(inputValue) {
-    localStorage.setItem(`${currentUser.email} - movieSearch`, inputValue);
-    localStorage.setItem(`${currentUser.email} - checked`, checked);
+    localStorage.setItem('movieSearch', inputValue);
+    localStorage.setItem('checked', checked);
 
     if (isAllMovies.length === 0) {
       moviesApi.getMovies()
