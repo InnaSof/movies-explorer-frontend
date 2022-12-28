@@ -15,7 +15,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
   const [filteredMovies, setFilteredMovies] = useState([]); // movies filtered by checkbox and query
   const [isAllMovies, setIsAllMovies] = useState([]); //all movies from the server
   const [isNotFound, setIsNotFound] = useState(false); // state found or not
-  const [isFetching, setIsFetching] = useState(true); // data loading
+  const [isFetching, setIsFetching] = useState(false); // data loading
   const [searchError, setSearchError] = useState(""); // error state
 
   // checkbox handler
@@ -64,25 +64,28 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
 
   // search by request
   function handleSearchMovies(inputValue) {
-    localStorage.setItem('movieSearch', inputValue);
-    localStorage.setItem('checked', checked);
+    setIsFetching(true);
+    setTimeout(() => {
+      localStorage.setItem('movieSearch', inputValue);
+      localStorage.setItem('checked', checked);
 
-    if (isAllMovies.length === 0) {
-      moviesApi.getMovies()
-        .then(movies => {
-          setIsAllMovies(movies);
-          handleFilteredMovies(
-            inputValue,
-            checked
-          );
-        })
-        .catch(() => {
-          setSearchError('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз');
-        })
-        .finally(() => setIsFetching(false));
-    } else {
-      handleFilteredMovies(isAllMovies, inputValue, checked);
-    }
+      if (isAllMovies.length === 0) {
+        moviesApi.getMovies()
+          .then(movies => {
+            setIsAllMovies(movies);
+            handleFilteredMovies(
+              inputValue,
+              checked
+            );
+          })
+          .catch(() => {
+            setSearchError('Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз');
+          })
+      } else {
+        handleFilteredMovies(isAllMovies, inputValue, checked);
+      }
+      setIsFetching(false);
+    }, 600);
   }
 
   return (
@@ -92,10 +95,8 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
         handleShortMovies={handleShortMovies}
         checked={checked}
       />
-     {/* { isFetching ? (
-        <Preloader />
-      ) : !isNotFound ? ( */}
-        {!isNotFound ? (
+     { isFetching ? <Preloader /> 
+     : !isNotFound ? (
         <MoviesCardList
           moviesList={filteredMovies}
           savedMoviesList={savedMoviesList}
