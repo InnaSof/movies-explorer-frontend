@@ -132,7 +132,6 @@ function App() {
     localStorage.clear();
     setLoggedIn(false);
     history.push("/");
-    setCurrentUser({});
   }
 
   // cохранение фильма
