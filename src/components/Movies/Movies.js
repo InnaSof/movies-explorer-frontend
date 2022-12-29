@@ -32,9 +32,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
     // render movies from local storage
   useEffect(() => {
     if (localStorage.getItem('movies')) {
-      const movies = JSON.parse(
-        localStorage.getItem('movies')
-      );
+      const movies = JSON.parse(localStorage.getItem('movies'));
       setInitialMovies(movies);
       if (
         localStorage.getItem('checked') === 'true'
@@ -48,6 +46,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
 
   // array lookup and state setting
   function handleFilteredMovies(movies, userRequest, shortMoviesCheckbox) {
+    setIsAllMovies(movies);
     const moviesList = filterMovies(movies, userRequest, shortMoviesCheckbox);
     if (moviesList.length === 0) {
       setIsNotFound(true);
@@ -72,8 +71,8 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
       if (isAllMovies.length === 0) {
         moviesApi.getMovies()
           .then(movies => {
-            setIsAllMovies(movies);
             handleFilteredMovies(
+              movies,
               inputValue,
               checked
             );
