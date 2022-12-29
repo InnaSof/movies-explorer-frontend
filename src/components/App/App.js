@@ -137,25 +137,22 @@ function App() {
   // cохранение фильма
   function handleSaveMovie(movie) {
     mainApi.addMovie(movie)
-      .then((newMovie) => setSavedMoviesList([newMovie, ...savedMoviesList]))
+      .then((res) => {
+        const updatedSavedMovies = [...savedMoviesList, { ...res, id: res.movieId }];
+        setSavedMoviesList(updatedSavedMovies);
+        localStorage.setItem("savedMovies", JSON.stringify(updatedSavedMovies));
+      })
       .catch((err) => {
         console.log(err);
       });
   }
 
-  // удаление фильма
   function handleDeleteMovie(movie) {
-    const savedMovie = savedMoviesList.find((item) => item.movieId === movie.id || item.movieId === movie.movieId);
-    mainApi.deleteMovie(savedMovie._id)
+    mainApi.deleteMovie(movie._id)
       .then(() => {
-        const newMoviesList = savedMoviesList.filter(m => {
-          if (movie.id === m.movieId || movie.movieId === m.movieId) {
-            return false;
-          } else {
-            return true;
-          }
-        });
-        setSavedMoviesList(newMoviesList);
+        const updatedSavedMovies = savedMoviesList.filter(m => m._id !== movie._id)
+        setSavedMoviesList(updatedSavedMovies);
+        localStorage.setItem("savedMovies", JSON.stringify(updatedSavedMovies));
       })
       .catch((err) => {
         console.log(err);
