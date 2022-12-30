@@ -147,10 +147,20 @@ function App() {
       });
   }
 
+  // удаление фильма
   function handleDeleteMovie(movie) {
-    mainApi.deleteMovie(movie._id)
+    const savedMovie = savedMoviesList.find(
+      (item) => item.movieId === movie.id || item.movieId === movie.movieId
+    );
+    mainApi.deleteMovie(savedMovie._id)
       .then(() => {
-        const updatedSavedMovies = savedMoviesList.filter(m => m._id !== movie._id)
+        const updatedSavedMovies = savedMoviesList.filter(m => {
+          if (movie.id === m.movieId || movie.movieId === m.movieId) {
+            return false;
+          } else {
+            return true;
+          }
+        });
         setSavedMoviesList(updatedSavedMovies);
         localStorage.setItem("savedMovies", JSON.stringify(updatedSavedMovies));
       })
@@ -158,6 +168,7 @@ function App() {
         console.log(err);
       });
   }
+  
 
   return (
     <CurrentUserContext.Provider value={currentUser}>

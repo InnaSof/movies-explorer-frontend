@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./MoviesCard.css";
 
-function MoviesCard({ movie, saved, onLikeClick, onDeleteClick }) {
+function MoviesCard({ movie, onLikeClick, onDeleteClick }) {
   const { pathname } = useLocation();
+  const [saved, setSaved] = useState(false);
 
   function handleLikeMovie() {
     onLikeClick(movie);
+    setSaved(true);
   }
 
   function handleDeleteMovie() {
     onDeleteClick(movie);
+    setSaved(false);
   }
 
   const serverUrl = 'https://api.nomoreparties.co';
