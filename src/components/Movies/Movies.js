@@ -10,7 +10,9 @@ import moviesApi from "../../utils/MoviesApi";
 function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
   const currentUser = useContext(CurrentUserContext);
 
-  const [checked, setChecked] = useState(false); // checkbox state
+  const [checked, setChecked] = useState(
+    JSON.parse(localStorage.getItem('checked')) ?? false
+  );
   const [initialMovies, setInitialMovies] = useState([]); // movies received from the request
   const [filteredMovies, setFilteredMovies] = useState([]); // movies filtered by checkbox and query
   const [isAllMovies, setIsAllMovies] = useState([]); //all movies from the server
@@ -65,7 +67,7 @@ function Movies({ onLikeClick, onDeleteClick, savedMoviesList }) {
   function handleSearchMovies(inputValue) {
     setIsFetching(true);
     setTimeout(() => {
-      localStorage.setItem('movieSearch', inputValue);
+      localStorage.setItem('searchText', inputValue);
       localStorage.setItem('checked', checked);
 
       if (isAllMovies.length === 0) {

@@ -5,7 +5,9 @@ import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 function SearchForm({ handleSearchSubmit, handleShortMovies, checked }) {
 
   const [searchError, setSearchError] = useState('');
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState(
+    localStorage.getItem('searchText') ?? ''
+  );
 
   function handleChange(evt) {
     setSearchError('');

@@ -168,7 +168,6 @@ function App() {
         console.log(err);
       });
   }
-  
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
