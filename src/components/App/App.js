@@ -176,7 +176,7 @@ function App() {
           </Route>
 
           <Route path='/signup'>
-            {loggedIn ? (
+            {!loggedIn ? (
               <Register 
                 onRegister={handleRegister}
                 registerError={requestStatus}
@@ -187,7 +187,7 @@ function App() {
           </Route>
                     
           <Route path='/signin'>
-            {loggedIn ? (
+            {!loggedIn ? (
               <Login 
                 onLogin={handleLogin}
                 loginError={requestStatus}
