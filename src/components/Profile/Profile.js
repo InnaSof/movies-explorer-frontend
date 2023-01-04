@@ -43,6 +43,7 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
                 type="text"
                 placeholder="Имя"
                 onChange={handleChange}
+                pattern='^(?!\s)[A-Za-zА-Яа-я\-\s]+$'
                 name="name"
                 id="name-input"
                 required
@@ -61,6 +62,7 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
                 type="email"
                 placeholder="E-mail"
                 onChange={handleChange}
+                pattern='^.+@.+\..+$'
                 name="email"
                 id="email-input"
                 required

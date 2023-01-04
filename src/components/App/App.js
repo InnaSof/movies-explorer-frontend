@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Route, Switch, useHistory, Redirect } from 'react-router-dom';
 import "./App.css";
 import Header from "../Header/Header";
@@ -25,36 +25,35 @@ function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [requestStatus, setRequestStatus] = useState('');
   const [savedMoviesList, setSavedMoviesList] = useState([]);
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  const handleSignOut = useCallback(() => {
+  useEffect(() => {
+    tokenCheck()
+  }, [loggedIn]);
+
+  function tokenCheck() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      auth.checkToken(token)
+        .then((res) => {
+          setCurrentUser(res);
+          setLoggedIn(true);
+        })
+        .catch((err) => {
+          if (err === 401) {
+            handleSignOut();
+          } else {
+          setRequestStatus('Что-то пошло не так! Попробуйте ещё раз.');
+          }
+        })
+    }
+  }
+
+  function handleSignOut() {
     localStorage.clear();
     setLoggedIn(false);
     history.push("/");
-  }, [history]);
-
-  const handleCheckToken = useCallback(() => {
-    if (localStorage.getItem('token')) {
-      let token = localStorage.getItem('token');
-      auth.checkToken(token)
-        .then((res) => {
-          setLoggedIn(true);
-          setCurrentUser(res);
-        })
-        .catch((err) => {
-          console.log(err);
-          if (err === 401) {
-            handleSignOut();
-          }
-        });
-    } else {
-      handleSignOut();
-    }
-  }, [handleSignOut]);
-
-  useEffect(() => {
-    handleCheckToken();
-  }, [handleCheckToken]);
+  }
 
   // получение массива сохраненных фильмов
   useEffect(() => {
@@ -74,8 +73,8 @@ function App() {
     auth.register(name, email, password)
       .then(() => {
         setLoggedIn(true);
-        history.push('/movies');
         handleLogin({ email, password })
+        history.push('/movies');
       })
       .catch((err) => {
         if (err === 409) {
@@ -177,7 +176,7 @@ function App() {
           </Route>
 
           <Route path='/signup'>
-            {!loggedIn ? (
+            {loggedIn ? (
               <Register 
                 onRegister={handleRegister}
                 registerError={requestStatus}
@@ -188,7 +187,7 @@ function App() {
           </Route>
                     
           <Route path='/signin'>
-            {!loggedIn ? (
+            {loggedIn ? (
               <Login 
                 onLogin={handleLogin}
                 loginError={requestStatus}
