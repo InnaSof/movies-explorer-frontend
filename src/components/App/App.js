@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Route, Switch, useHistory, useLocation, Redirect } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { Route, Switch, useHistory, Redirect } from 'react-router-dom';
 import "./App.css";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -18,51 +18,50 @@ import mainApi from "../../utils/MainApi";
 
 function App() {
   const history = useHistory();
-  const { pathname } = useLocation();
   
   const headerEndpoints = ['/', '/movies', '/saved-movies', '/profile'];
   const footerEndpoints = ['/', '/movies', '/saved-movies'];
 
   const [currentUser, setCurrentUser] = useState({});
   const [requestStatus, setRequestStatus] = useState('');
-
   const [savedMoviesList, setSavedMoviesList] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(true);
 
-  let state = !!localStorage.getItem('token');
-  const [loggedIn, setLoggedIn] = useState(state);
+  const handleSignOut = useCallback(() => {
+    localStorage.clear();
+    setLoggedIn(false);
+    history.push("/");
+  }, [history]);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
+  const handleCheckToken = useCallback(() => {
+    if (localStorage.getItem('token')) {
+      let token = localStorage.getItem('token');
       auth.checkToken(token)
         .then((res) => {
           setLoggedIn(true);
           setCurrentUser(res);
-          history.push(pathname);
         })
         .catch((err) => {
           console.log(err);
+          if (err === 401) {
+            handleSignOut();
+          }
         });
+    } else {
+      handleSignOut();
     }
-  },[history, pathname, loggedIn]);
+  }, [handleSignOut]);
 
-  // получение информации о пользователе
   useEffect(() => {
-    if (loggedIn) {
-      mainApi.getUserInfo()
-        .then(res => setCurrentUser(res))
-        .catch((err) => {
-          console.log(err);
-        })
-    }
-  }, [loggedIn, setCurrentUser]);
+    handleCheckToken();
+  }, [handleCheckToken]);
 
   // получение массива сохраненных фильмов
   useEffect(() => {
     if (loggedIn && currentUser) {
       mainApi.getSavedMovies()
         .then(data => {
-          const UserMoviesList = data.filter(m => m.owner === currentUser._id);
+          const UserMoviesList = data.movies.filter(m => m.owner === currentUser._id);
           setSavedMoviesList(UserMoviesList);
         })
         .catch((err) => {
@@ -126,12 +125,6 @@ function App() {
           setRequestStatus('Что-то пошло не так! Попробуйте ещё раз.');
         }
       })
-  }
-
-  function handleSignOut() {
-    localStorage.clear();
-    setLoggedIn(false);
-    history.push("/");
   }
 
   // cохранение фильма

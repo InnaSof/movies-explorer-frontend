@@ -17,14 +17,6 @@ class MainApi {
     return Promise.reject(res.status);
   }
 
-  getUserInfo() {
-    return fetch(`${this._baseUrl}/users/me`, {
-      method: 'GET',
-      headers: _getHeaders(),
-    })
-    .then(this._handleResponse);
-  }
-
   editUserInfo(name, email) {
     return fetch(`${this._baseUrl}/users/me`, {
       method: 'PATCH',
