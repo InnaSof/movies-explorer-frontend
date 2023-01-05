@@ -16,8 +16,8 @@ function filterMovies(movies, userRequest, shortMoviesCheckbox) {
 }
 
   // фильтрация по длительности
-function filterShortMovies(movies) {
-  return movies.filter(movie => movie.duration < SHORTMOVIE_DURATION);
-}
+  function filterShortMovies(movies) {
+    return movies.filter(movie => movie.duration < SHORTMOVIE_DURATION);
+  }
 
 export { filterMovies, filterShortMovies };

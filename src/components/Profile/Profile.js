@@ -4,26 +4,21 @@ import useFormWithValidation from "../../utils/useFormWithValidation";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 
 function Profile({ onUpdateUser, profileError, onSignOut }) {
-
+  const { values, handleChange, resetForm, errors, isValid } = useFormWithValidation();
   const currentUser = useContext(CurrentUserContext);
 
-  const { values, handleChange, resetForm, errors, isValid } = useFormWithValidation();
-  const [isProfileEdit, setIsProfileEdit] = React.useState(false);
-
-  function handleSubmit(evt) {
-    evt.preventDefault();
+  function handleSubmit(e) {
+    e.preventDefault();
     onUpdateUser(values);
   }
 
+  const validity = (!isValid || (currentUser.name === values.name && currentUser.email === values.email));
+  
   useEffect(() => {
-    currentUser.name !== values.name || currentUser.email !== values.email ?
-      setIsProfileEdit(true) : setIsProfileEdit(false);
-  }, [currentUser.name, currentUser.email, values.email, values.name]);
-
-
-  useEffect(() => {
-    resetForm({ name: currentUser.name, email: currentUser.email }, {}, false)
-  }, [resetForm, currentUser])
+    if (currentUser) {
+      resetForm(currentUser, {}, true);
+    }
+  }, [currentUser, resetForm]);
 
   return (
     <section className="profile">
@@ -74,9 +69,9 @@ function Profile({ onUpdateUser, profileError, onSignOut }) {
             <span className="profile__error-server">{profileError}</span>
           </div>
           <button 
-            className={`profile__btn-edit ${!isValid && 'profile__btn-edit_disabled'}`}
+            className={`profile__btn-edit ${validity ? 'profile__btn-edit_disabled' : ''}`}
             type="submit"
-            disabled={!isValid && !isProfileEdit}
+            disabled={validity ? true : false}
           >
             Редактировать
           </button>

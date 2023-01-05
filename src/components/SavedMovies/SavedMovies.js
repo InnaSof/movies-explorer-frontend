@@ -16,6 +16,7 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
 
   // checkbox handler
   function handleShortMovies() {
+    debugger;
     if (!checked) {
       setChecked(true);
       localStorage.setItem('shortSavedMovies', true);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Route, Switch, useHistory, Redirect } from 'react-router-dom';
+import { Route, Switch, useHistory, useLocation, Redirect } from 'react-router-dom';
 import "./App.css";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -18,6 +18,7 @@ import mainApi from "../../utils/MainApi";
 
 function App() {
   const history = useHistory();
+  const { pathname } = useLocation();
   
   const headerEndpoints = ['/', '/movies', '/saved-movies', '/profile'];
   const footerEndpoints = ['/', '/movies', '/saved-movies'];
@@ -25,36 +26,29 @@ function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [requestStatus, setRequestStatus] = useState('');
   const [savedMoviesList, setSavedMoviesList] = useState([]);
-  const [loggedIn, setLoggedIn] = useState(false);
 
+  const token = localStorage.getItem('token');
+  const [loggedIn, setLoggedIn] = useState(!!token);
+
+  // проверка токена и авторизация пользователя
   useEffect(() => {
-    tokenCheck()
-  }, [loggedIn]);
-
-  function tokenCheck() {
-    const token = localStorage.getItem("token");
+    const path = pathname;
+    const token = localStorage.getItem('token');
     if (token) {
       auth.checkToken(token)
-        .then((res) => {
-          setCurrentUser(res);
-          setLoggedIn(true);
-        })
-        .catch((err) => {
-          if (err === 401) {
-            handleSignOut();
-          } else {
-          setRequestStatus('Что-то пошло не так! Попробуйте ещё раз.');
+        .then(data => {
+          if (data) {
+            setLoggedIn(true);
+            setCurrentUser(data);
+            history.push(path);
           }
         })
-    }
-  }
-
-  function handleSignOut() {
-    localStorage.clear();
-    setLoggedIn(false);
-    history.push("/");
-  }
-
+        .catch((err) => {
+          console.log(err);
+        });
+      }
+  }, [history, pathname]);
+  
   // получение массива сохраненных фильмов
   useEffect(() => {
     if (loggedIn && currentUser) {
@@ -73,8 +67,8 @@ function App() {
     auth.register(name, email, password)
       .then(() => {
         setLoggedIn(true);
-        handleLogin({ email, password })
         history.push('/movies');
+        handleLogin({ email, password })
       })
       .catch((err) => {
         if (err === 409) {
@@ -110,10 +104,13 @@ function App() {
   }
 
   function handleUpdateUser({ name, email }) {
-    mainApi.editUserInfo(name, email)
-      .then((res) => {
+    if (currentUser.name === name && currentUser.email === email) {
+      setRequestStatus('Указанные Имя и e-Mail не отличаются от текущих.');
+    } else {
+      mainApi.editUserInfo(name, email)
+      .then(newUserData => {
+        setCurrentUser(newUserData);
         setLoggedIn(true);
-        setCurrentUser(res);
         setRequestStatus('Данные успешно обновлены!');
       })
       .catch((err) => {
@@ -124,6 +121,14 @@ function App() {
           setRequestStatus('Что-то пошло не так! Попробуйте ещё раз.');
         }
       })
+    } 
+  }
+
+  function handleSignOut() {
+    setCurrentUser({});
+    localStorage.clear();
+    setLoggedIn(false);
+    history.push("/");
   }
 
   // cохранение фильма
