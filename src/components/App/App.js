@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Route, Switch, useHistory, useLocation, Redirect } from 'react-router-dom';
 import "./App.css";
 import Header from "../Header/Header";
@@ -30,8 +30,15 @@ function App() {
   const token = localStorage.getItem('token');
   const [loggedIn, setLoggedIn] = useState(!!token);
 
+  const handleSignOut = useCallback(() => {
+    setCurrentUser({});
+    localStorage.clear();
+    setLoggedIn(false);
+    history.push("/");
+  }, [history])
+
   // проверка токена и авторизация пользователя
-  useEffect(() => {
+  const handleCheckToken = useCallback(() => {
     const path = pathname;
     const token = localStorage.getItem('token');
     if (token) {
@@ -45,9 +52,14 @@ function App() {
         })
         .catch((err) => {
           console.log(err);
+          handleSignOut();
         });
       }
-  }, [history, pathname]);
+  }, [handleSignOut, history, pathname]);
+
+  useEffect(() => {
+    handleCheckToken();
+  }, [handleCheckToken]);
   
   // получение массива сохраненных фильмов
   useEffect(() => {
@@ -122,13 +134,6 @@ function App() {
         }
       })
     } 
-  }
-
-  function handleSignOut() {
-    setCurrentUser({});
-    localStorage.clear();
-    setLoggedIn(false);
-    history.push("/");
   }
 
   // cохранение фильма

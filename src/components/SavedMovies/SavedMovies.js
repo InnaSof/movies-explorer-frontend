@@ -1,12 +1,11 @@
 import './SavedMovies.css';
 import { useState, useContext, useEffect } from 'react';
-import Preloader from "../Movies/Preloader/Preloader";
 import SearchForm from "../Movies/SearchForm/SearchForm";
 import MoviesCardList from "../Movies/MoviesCardList/MoviesCardList";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import { filterMovies, filterShortMovies } from "../../utils/filterMovies";
 
-function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
+function SavedMovies({ onDeleteClick, savedMoviesList }) {
   const currentUser = useContext(CurrentUserContext);
 
   const [checked, setChecked] = useState(false);
@@ -19,15 +18,15 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
     if (!checked) {
       setChecked(true);
       localStorage.setItem('shortSavedMovies', true);
+      filterShortMovies(filteredMovies).length === 0 ? setIsNotFound(true) : setIsNotFound(false);
       setFilteredMovies(filterShortMovies(savedMoviesList));
       setDisplayedMovies(filterShortMovies(savedMoviesList));
-      filterShortMovies(filteredMovies).length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     } else {
       setChecked(false);
       localStorage.setItem('shortSavedMovies', false);
+      savedMoviesList.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
       setDisplayedMovies(savedMoviesList);
       setFilteredMovies(savedMoviesList);
-      savedMoviesList.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     }
   }
 
@@ -49,10 +48,12 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
       setChecked(true);
       setFilteredMovies(filterShortMovies(savedMoviesList));
       setDisplayedMovies(filterShortMovies(savedMoviesList));
+      filterShortMovies(savedMoviesList).length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     } else {
       setChecked(false);
       setDisplayedMovies(savedMoviesList);
       setFilteredMovies(savedMoviesList);
+      savedMoviesList.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     }
   }, [savedMoviesList, currentUser]);
 
@@ -64,9 +65,7 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
         handleShortMovies={handleShortMovies}
         checked={checked}
       />
-     { isFetching ? (
-        <Preloader />
-      ) : !isNotFound ? (
+     { !isNotFound ? (
       <MoviesCardList
         moviesList={filteredMovies}
         savedMoviesList={savedMoviesList}
