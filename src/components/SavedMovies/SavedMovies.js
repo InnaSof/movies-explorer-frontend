@@ -16,17 +16,18 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
 
   // checkbox handler
   function handleShortMovies() {
-    debugger;
     if (!checked) {
       setChecked(true);
       localStorage.setItem('shortSavedMovies', true);
-      setDisplayedMovies(filterShortMovies(filteredMovies));
+      setFilteredMovies(filterShortMovies(savedMoviesList));
+      setDisplayedMovies(filterShortMovies(savedMoviesList));
       filterShortMovies(filteredMovies).length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     } else {
       setChecked(false);
       localStorage.setItem('shortSavedMovies', false);
-      filteredMovies.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
-      setDisplayedMovies(filteredMovies);
+      setDisplayedMovies(savedMoviesList);
+      setFilteredMovies(savedMoviesList);
+      savedMoviesList.length === 0 ? setIsNotFound(true) : setIsNotFound(false);
     }
   }
 
@@ -46,17 +47,15 @@ function SavedMovies({ onDeleteClick, savedMoviesList, isFetching }) {
   useEffect(() => {
     if (localStorage.getItem('shortSavedMovies') === 'true') {
       setChecked(true);
+      setFilteredMovies(filterShortMovies(savedMoviesList));
       setDisplayedMovies(filterShortMovies(savedMoviesList));
     } else {
       setChecked(false);
       setDisplayedMovies(savedMoviesList);
+      setFilteredMovies(savedMoviesList);
     }
   }, [savedMoviesList, currentUser]);
 
-  useEffect(() => {
-    setFilteredMovies(savedMoviesList);
-    savedMoviesList.length !== 0 ? setIsNotFound(false) : setIsNotFound(true);
-  }, [savedMoviesList]);
 
   return (
     <main className="saved-movies">
