@@ -1,41 +1,53 @@
-import React from "react";
-import './SearchForm.css';
-import FilterCheckbox from '../FilterCheckbox/FilterCheckbox';
+import React, { useState } from "react";
+import "./SearchForm.css";
+import FilterCheckbox from "../FilterCheckbox/FilterCheckbox";
 
-function SearchForm() {
-  const [inputSearch, setInputSearch] = React.useState('');
-  const [checkboxStatus, setCheckboxStatus] = React.useState(false);
+function SearchForm({ handleSearchSubmit, handleShortMovies, checked }) {
 
-  function handleInputChange(evt) {
-    setInputSearch(evt.target.value);
+  const [searchError, setSearchError] = useState('');
+  const [searchText, setSearchText] = useState(
+    localStorage.getItem('searchText') ?? ''
+  );
+
+  function handleChange(evt) {
+    setSearchError('');
+    setSearchText(evt.target.value);
   }
 
-  function handleCheckboxChange(evt) {
-    toggleCheckboxChange(evt.target.checked);
-  }
-
-  function toggleCheckboxChange(checkboxStatus) {
-    setCheckboxStatus(checkboxStatus);
+  function handleSubmit(evt) {
+    evt.preventDefault();
+    if (searchText === '') {
+      setSearchError('Нужно ввести ключевое слово')
+    } else {
+      handleSearchSubmit(searchText);
+      setSearchError('');
+    }
   }
 
   return (
     <section className="search">
       <div className="search__container">
-        <form className="search__form">
+        <form 
+          className="search__form"
+          name="search"
+          onSubmit={handleSubmit}
+          noValidate
+        >
           <input 
             className="search__input" 
             type="text" 
             placeholder="Фильм" 
             name="search" 
             required
-            value={inputSearch || ''}
-            onChange={handleInputChange}
+            value={searchText || ''}
+            onChange={handleChange}
           />
+          <span className="search__error">{searchError}</span>
           <button className="search__btn" type="submit"></button>
         </form>
         <FilterCheckbox
-          checkboxStatus={checkboxStatus}
-          onChangeCheckbox={handleCheckboxChange}
+          checked={checked}
+          handleShortMovies={handleShortMovies}
         />
       </div>
     </section>

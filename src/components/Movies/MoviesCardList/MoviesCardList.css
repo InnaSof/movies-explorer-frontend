@@ -45,6 +45,10 @@
   opacity: 0.6;
 }
 
+.cards__more-button_hidden {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .cards__movies {
     padding: 70px 30px 80px;

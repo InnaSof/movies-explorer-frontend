@@ -4,3 +4,10 @@
   flex-direction: column;
   align-items: center;
 }
+
+.movies__nothing-found-text {
+  color: #404040;
+  font-size: 40px;
+  text-align: center;
+  margin: 0;
+}

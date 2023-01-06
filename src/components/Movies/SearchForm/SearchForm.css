@@ -22,6 +22,8 @@
   background-color: transparent;
   border: none;
   padding: 0 0 0 22px;
+  color: #fff;
+  outline: none;
 }
 
 .search__input::placeholder {
@@ -49,6 +51,13 @@
 
 .search__btn:hover {
   opacity: 0.6;
+}
+
+.search__error {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 14px;
+  color: #EE3465;
 }
 
 @media (max-width: 768px) {
